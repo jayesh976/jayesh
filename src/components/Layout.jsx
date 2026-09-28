@@ -143,7 +143,10 @@ export default function Layout() {
   useScrollOnNavigate();
   return (
     <div className="app">
-      <a href="#main" className="skip-link">Skip to content</a>
+      <a href="#main" className="skip-link" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>Skip to content</a>
+      {import.meta.env.VITE_PREVIEW && (
+        <p className="preview-bar">Preview only. Stock photos, the contact form and the admin panel work once the site is live at shreemahaganpatienterprises.org.</p>
+      )}
       <Header />
       <main id="main" key={pathname} className="page-enter" tabIndex={-1}>
         <Outlet />

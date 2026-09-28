@@ -22,6 +22,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     plugins: [react(), seoFiles(env.VITE_SITE_URL || 'https://www.example.com')],
+    build: env.VITE_PREVIEW
+      ? { outDir: 'preview-dist', assetsInlineLimit: 0, rollupOptions: { output: { inlineDynamicImports: true } } }
+      : undefined,
     server: { port: 3000, host: true },
     preview: { port: 3000, host: true },
   };

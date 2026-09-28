@@ -1,6 +1,6 @@
 import { StrictMode, lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import Home from './pages/Home.jsx';
 import About from './pages/About.jsx';
@@ -13,6 +13,7 @@ import NotFound from './pages/NotFound.jsx';
 import './styles.css';
 
 const Admin = lazy(() => import('./pages/Admin.jsx'));
+const Router = import.meta.env.VITE_PREVIEW ? HashRouter : BrowserRouter;
 
 function AdminShell() {
   return (
@@ -35,7 +36,7 @@ function AdminShell() {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/admin" element={<AdminShell />} />
         <Route element={<Layout />}>
@@ -50,6 +51,6 @@ createRoot(document.getElementById('root')).render(
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </Router>
   </StrictMode>,
 );
