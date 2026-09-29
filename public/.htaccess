@@ -1,3 +1,12 @@
+# Always use https://www.shreemahaganpatienterprises.org (one address for SEO and admin sign-in).
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP_HOST} !^www\. [NC,OR]
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP_HOST} ^(www\.)?shreemahaganpatienterprises\.org$ [NC]
+  RewriteRule ^(.*)$ https://www.shreemahaganpatienterprises.org/$1 [R=301,L]
+</IfModule>
+
 # Serve index.html for page URLs like /about so refreshes and direct links work.
 <IfModule mod_rewrite.c>
   RewriteEngine On
