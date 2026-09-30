@@ -195,7 +195,8 @@ export function PropertiesPanel() {
             className="danger"
             onClick={() => {
               const count = model.nodes.filter((n) => n.laneId === lane.id).length;
-              if (!count || window.confirm(`Delete ${lane.name} and its ${count} step(s)? You can undo this.`)) deleteSelection();
+              deleteSelection();
+              if (count) useEditor.getState().notify(`Deleted ${lane.name} and its ${count} step(s). Press Undo to restore them.`);
             }}
           >
             <Icons.trash /> Delete department

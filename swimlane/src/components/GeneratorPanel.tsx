@@ -37,14 +37,16 @@ export function GeneratorPanel({ variant, onNotify }: Props) {
       setError("Describe the process in at least one full sentence.");
       return;
     }
-    if (model && !window.confirm("Replace the current diagram with a newly generated one? You can undo this.")) return;
     setError(null);
     setStage(0);
     abortRef.current = new AbortController();
     try {
       const result = await generateProcess(description, abortRef.current.signal);
+      const replaced = Boolean(useEditor.getState().model);
       loadModel(buildModel(result.process, description));
-      if (result.source === "offline") {
+      if (replaced) {
+        onNotify("Replaced the previous diagram. Press Undo to bring it back.");
+      } else if (result.source === "offline") {
         onNotify("Generated with the offline parser because no AI key is configured. Review the result.");
       } else if (result.warnings.length) {
         onNotify(`Generated with ${result.warnings.length} automatic correction(s). Review the diagram.`);

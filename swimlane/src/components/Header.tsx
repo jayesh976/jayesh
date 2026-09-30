@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { exportPng } from "../lib/exportPng";
+import { exportPng, renderPng } from "../lib/exportPng";
 import { useEditor } from "../store";
 import { useFitDiagram } from "./Canvas";
 import { Icons } from "./Icons";
@@ -16,6 +16,7 @@ export function Header({ onNotify }: Props) {
   const { undo, redo, save, autoLayout, loadModel, commit } = useEditor.getState();
   const fitDiagram = useFitDiagram();
   const [exporting, setExporting] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const onSave = () => {
     if (save()) onNotify("Process saved in this browser.");
@@ -26,7 +27,9 @@ export function Header({ onNotify }: Props) {
     if (!model) return;
     setExporting(true);
     try {
-      await exportPng(model);
+      // Hosted previews cannot start downloads, so show the image to save instead.
+      if (import.meta.env.VITE_PREVIEW === "1") setPreviewImage(await renderPng(model));
+      else await exportPng(model);
     } catch (error) {
       console.error(error);
       onNotify("PNG export failed. Try again, or zoom the canvas and retry.", "error");
@@ -36,8 +39,9 @@ export function Header({ onNotify }: Props) {
   };
 
   const onNew = () => {
-    if (model && dirty && !window.confirm("Start a new process? Unsaved changes can still be undone with Undo.")) return;
+    const hadModel = Boolean(model);
     loadModel(null);
+    if (hadModel && dirty) onNotify("Started a new process. Press Undo to return to the previous diagram.");
   };
 
   return (
@@ -84,6 +88,20 @@ export function Header({ onNotify }: Props) {
           <Icons.download /> <span className="label">{exporting ? "Exporting…" : "Export PNG"}</span>
         </button>
       </nav>
+      {previewImage && (
+        <div className="dialog-backdrop" onClick={() => setPreviewImage(null)}>
+          <div className="dialog" role="dialog" aria-modal="true" aria-labelledby="png-title" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-head">
+              <h2 id="png-title">PNG export</h2>
+              <button type="button" autoFocus onClick={() => setPreviewImage(null)}>Close</button>
+            </div>
+            <p className="muted small">Right-click the image and choose “Save image as” to keep it. The full app downloads the file directly.</p>
+            <div className="dialog-body">
+              <img src={previewImage} alt={`Exported diagram: ${model?.title ?? "process"}`} />
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

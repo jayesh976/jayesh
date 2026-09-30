@@ -5,6 +5,8 @@ import type { Lane, NodeType, ProcessEdge, ProcessModel, ProcessNode } from "./s
 const HISTORY_LIMIT = 100;
 const STORAGE_KEY = "swimlane-studio:process";
 
+export type Toast = { message: string; tone: "info" | "error"; id: number } | null;
+
 export type Selection = { kind: "node" | "edge" | "lane"; ids: string[] } | null;
 
 interface EditorState {
@@ -14,6 +16,9 @@ interface EditorState {
   selection: Selection;
   savedAt: string | null;
   dirty: boolean;
+  toast: Toast;
+  notify: (message: string, tone?: "info" | "error") => void;
+  dismissToast: () => void;
 
   /** Replace the model as one undoable step. */
   commit: (update: (model: ProcessModel) => ProcessModel) => void;
@@ -54,6 +59,10 @@ export const useEditor = create<EditorState>((set, get) => ({
   selection: null,
   savedAt: null,
   dirty: false,
+  toast: null,
+
+  notify: (message, tone = "info") => set({ toast: { message, tone, id: Date.now() } }),
+  dismissToast: () => set({ toast: null }),
 
   commit: (update) => {
     const { model, past } = get();

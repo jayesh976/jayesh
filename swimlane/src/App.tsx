@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Canvas } from "./components/Canvas";
 import { GeneratorPanel } from "./components/GeneratorPanel";
@@ -7,21 +7,19 @@ import { PropertiesPanel } from "./components/PropertiesPanel";
 import { Sidebar } from "./components/Sidebar";
 import { useEditor } from "./store";
 
-type Toast = { message: string; tone: "info" | "error" } | null;
-
 const isTyping = (target: EventTarget | null) =>
   target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 
 export default function App() {
   const model = useEditor((s) => s.model);
-  const [toast, setToast] = useState<Toast>(null);
+  const toast = useEditor((s) => s.toast);
   const clipboard = useRef<string[]>([]);
 
-  const notify = useCallback((message: string, tone: "info" | "error" = "info") => setToast({ message, tone }), []);
+  const notify = useEditor((s) => s.notify);
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), toast.tone === "error" ? 8000 : 4500);
+    const timer = setTimeout(() => useEditor.getState().dismissToast(), toast.tone === "error" ? 8000 : 4500);
     return () => clearTimeout(timer);
   }, [toast]);
 
@@ -97,7 +95,7 @@ export default function App() {
         {toast && (
           <div className={`toast toast-${toast.tone}`} role={toast.tone === "error" ? "alert" : "status"}>
             {toast.message}
-            <button type="button" className="icon" onClick={() => setToast(null)} aria-label="Dismiss">
+            <button type="button" className="icon" onClick={() => useEditor.getState().dismissToast()} aria-label="Dismiss">
               ×
             </button>
           </div>
