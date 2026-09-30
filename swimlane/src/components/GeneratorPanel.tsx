@@ -47,7 +47,11 @@ export function GeneratorPanel({ variant, onNotify }: Props) {
       if (replaced) {
         onNotify("Replaced the previous diagram. Press Undo to bring it back.");
       } else if (result.source === "offline") {
-        onNotify("Generated with the offline parser because no AI key is configured. Review the result.");
+        onNotify(
+          import.meta.env.VITE_PREVIEW === "1"
+            ? "Claude isn't available here, so the built-in parser made this diagram. Review the result."
+            : "Generated with the offline parser because no AI key is configured. Review the result.",
+        );
       } else if (result.warnings.length) {
         onNotify(`Generated with ${result.warnings.length} automatic correction(s). Review the diagram.`);
       }

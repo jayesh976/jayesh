@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { exportPng, renderPng } from "../lib/exportPng";
+import { useDownloads } from "../lib/claudeRuntime";
+import { exportPng, pngFileName, renderPng } from "../lib/exportPng";
 import { useEditor } from "../store";
 import { useFitDiagram } from "./Canvas";
 import { Icons } from "./Icons";
@@ -28,8 +29,17 @@ export function Header({ onNotify }: Props) {
     setExporting(true);
     try {
       // Hosted previews cannot start downloads, so show the image to save instead.
-      if (import.meta.env.VITE_PREVIEW === "1") setPreviewImage(await renderPng(model));
-      else await exportPng(model);
+      if (import.meta.env.VITE_PREVIEW === "1") {
+        const dataUrl = await renderPng(model);
+        const downloads = await useDownloads();
+        if (!downloads) return setPreviewImage(dataUrl);
+        try {
+          await downloads.save({ filename: pngFileName(model), data: await (await fetch(dataUrl)).blob() });
+        } catch (e) {
+          const code = (e as { code?: string })?.code;
+          if (code !== "declined") setPreviewImage(dataUrl);
+        }
+      } else await exportPng(model);
     } catch (error) {
       console.error(error);
       onNotify("PNG export failed. Try again, or zoom the canvas and retry.", "error");
