@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDownloads } from "../lib/claudeRuntime";
+import { exportPdf, pdfFileName, renderPdf } from "../lib/exportPdf";
 import { exportPng, pngFileName, renderPng } from "../lib/exportPng";
 import { useEditor } from "../store";
 import { useFitDiagram } from "./Canvas";
@@ -16,7 +17,7 @@ export function Header({ onNotify }: Props) {
   const dirty = useEditor((s) => s.dirty);
   const { undo, redo, save, autoLayout, loadModel, commit } = useEditor.getState();
   const fitDiagram = useFitDiagram();
-  const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState<"png" | "pdf" | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const onSave = () => {
@@ -26,7 +27,7 @@ export function Header({ onNotify }: Props) {
 
   const onExport = async () => {
     if (!model) return;
-    setExporting(true);
+    setExporting("png");
     try {
       // Hosted previews cannot start downloads, so show the image to save instead.
       if (import.meta.env.VITE_PREVIEW === "1") {
@@ -44,7 +45,33 @@ export function Header({ onNotify }: Props) {
       console.error(error);
       onNotify("PNG export failed. Try again, or zoom the canvas and retry.", "error");
     } finally {
-      setExporting(false);
+      setExporting(null);
+    }
+  };
+
+  const onExportPdf = async () => {
+    if (!model) return;
+    setExporting("pdf");
+    try {
+      if (import.meta.env.VITE_PREVIEW === "1") {
+        const blob = await renderPdf(model);
+        const downloads = await useDownloads();
+        if (!downloads) {
+          onNotify("PDF download isn't available in this view. Use Export PNG instead.", "error");
+          return;
+        }
+        try {
+          await downloads.save({ filename: pdfFileName(model), data: blob });
+        } catch (e) {
+          const code = (e as { code?: string })?.code;
+          if (code !== "declined") onNotify("The PDF could not be saved here. Try again, or use Export PNG.", "error");
+        }
+      } else await exportPdf(model);
+    } catch (error) {
+      console.error(error);
+      onNotify("PDF export failed. Try again.", "error");
+    } finally {
+      setExporting(null);
     }
   };
 
@@ -94,8 +121,11 @@ export function Header({ onNotify }: Props) {
         <button type="button" onClick={() => fitDiagram()} disabled={!model} title="Fit diagram to screen" aria-label="Fit to screen">
           <Icons.fit />
         </button>
-        <button type="button" className="primary" onClick={onExport} disabled={!model || exporting} title="Export as PNG">
-          <Icons.download /> <span className="label">{exporting ? "Exporting…" : "Export PNG"}</span>
+        <button type="button" onClick={onExport} disabled={!model || Boolean(exporting)} title="Export as PNG image">
+          <Icons.download /> <span className="label">{exporting === "png" ? "Exporting…" : "Export PNG"}</span>
+        </button>
+        <button type="button" className="primary" onClick={onExportPdf} disabled={!model || Boolean(exporting)} title="Download as PDF">
+          <Icons.file /> <span className="label">{exporting === "pdf" ? "Preparing PDF…" : "Download PDF"}</span>
         </button>
       </nav>
       {previewImage && (
