@@ -15,27 +15,13 @@ import {
   type NodeTypes,
   type OnSelectionChangeParams,
 } from "@xyflow/react";
-import { canvasWidth, laneOffsets, placeInLane } from "../shared/layout";
+import { canvasWidth, chooseSides, laneOffsets, placeInLane } from "../shared/layout";
 import type { ProcessModel, ProcessNode } from "../shared/schema";
 import { useEditor, type Selection } from "../store";
 import { LanesLayer } from "./LanesLayer";
 import { StepNode, type StepFlowNode } from "./nodes/StepNode";
 
 const nodeTypes: NodeTypes = { step: StepNode };
-
-type Side = "t" | "r" | "b" | "l";
-
-/** Pick the sides a connector leaves and enters by, so arrows reroute as nodes move. */
-function chooseSides(a: { x: number; y: number; w: number; h: number }, b: typeof a): [Side, Side] {
-  const dy = b.y + b.h / 2 - (a.y + a.h / 2);
-  const gapRight = b.x - (a.x + a.w);
-  const gapLeft = a.x - (b.x + b.w);
-  const sameRow = Math.abs(dy) < Math.min(a.h, b.h) / 2;
-  if (gapRight >= 50 || (sameRow && gapRight > 0)) return ["r", "l"];
-  if (!sameRow) return dy > 0 ? ["b", "t"] : ["t", "b"];
-  if (gapLeft > 0) return ["b", "b"]; // loop back within a row
-  return ["r", "l"];
-}
 
 /** Fit the whole diagram, lanes included, not only the nodes. */
 export function useFitDiagram() {

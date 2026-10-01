@@ -111,3 +111,24 @@ describe("layout", () => {
     expect(placeInLane(model.lanes, 99999, 40).laneId).toBe(model.lanes.at(-1)!.id);
   });
 });
+
+describe("Word export", () => {
+  it("draws every lane, step and arrow as its own editable shape", async () => {
+    const { unzipSync, strFromU8 } = await import("fflate");
+    const { buildDocx } = await import("../src/lib/exportDocx");
+    const model = buildModel(sanitizeProcess(parseProcessOffline(DEMO_PROCESS)).process, DEMO_PROCESS);
+    const files = unzipSync(buildDocx(model));
+    expect(Object.keys(files)).toEqual(expect.arrayContaining(["[Content_Types].xml", "_rels/.rels", "word/document.xml"]));
+    const xml = strFromU8(files["word/document.xml"]);
+    expect(xml).not.toContain("<pic:");
+    const shapes = xml.match(/<wps:wsp>/g)!.length;
+    const labels = model.edges.filter((e) => e.label).length;
+    expect(shapes).toBe(model.lanes.length * 2 + model.nodes.length + model.edges.length + labels);
+    // Arrows are glued to shapes that exist in the drawing.
+    const ids = new Set([...xml.matchAll(/<wps:cNvPr id="(\d+)"/g)].map((m) => m[1]));
+    const glued = [...xml.matchAll(/<a:(?:stCxn|endCxn) id="(\d+)"/g)].map((m) => m[1]);
+    expect(glued.length).toBeGreaterThan(0);
+    for (const id of glued) expect(ids.has(id)).toBe(true);
+    for (const node of model.nodes) expect(xml).toContain(node.text.replace(/&/g, "&amp;"));
+  });
+});

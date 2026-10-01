@@ -32,11 +32,13 @@ Other scripts: `npm test` (Vitest), `npm run typecheck`, `npm run build` then `n
 - Undo/redo for every model change (Ctrl+Z / Ctrl+Shift+Z), zoom, pan, fit, minimap.
 - Save to this browser (Ctrl+S) and restore on reload.
 - Export PNG of the full diagram at 2x resolution.
+- Download PDF (A4, or A3 for large diagrams) with the process summary.
+- Download Word: a real .docx where every department, step, arrow and Yes/No label is a native Word shape inside a drawing canvas, so it can be moved, retyped, recolored or deleted in Word. Arrows are glued connectors that follow the steps they join.
 - Process summary panel: departments, activities, decisions, inputs, outputs, assumptions. Ambiguous steps are shown dashed with a "?" badge.
 
 ## Not built yet
 
-PDF and Word export, server-side persistence with accounts, AI improve/simplify/explain actions on an existing diagram, a settings screen.
+Server-side persistence with accounts, AI improve/simplify/explain actions on an existing diagram, a settings screen.
 
 ## Layout
 

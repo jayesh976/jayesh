@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDownloads } from "../lib/claudeRuntime";
+import { docxFileName, exportDocx, renderDocx } from "../lib/exportDocx";
 import { exportPdf, pdfFileName, renderPdf } from "../lib/exportPdf";
 import { exportPng, pngFileName, renderPng } from "../lib/exportPng";
 import { useEditor } from "../store";
@@ -17,7 +18,7 @@ export function Header({ onNotify }: Props) {
   const dirty = useEditor((s) => s.dirty);
   const { undo, redo, save, autoLayout, loadModel, commit } = useEditor.getState();
   const fitDiagram = useFitDiagram();
-  const [exporting, setExporting] = useState<"png" | "pdf" | null>(null);
+  const [exporting, setExporting] = useState<"png" | "pdf" | "docx" | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const onSave = () => {
@@ -75,6 +76,31 @@ export function Header({ onNotify }: Props) {
     }
   };
 
+  const onExportDocx = async () => {
+    if (!model) return;
+    setExporting("docx");
+    try {
+      if (import.meta.env.VITE_PREVIEW === "1") {
+        const downloads = await useDownloads();
+        if (!downloads) {
+          onNotify("Word download isn't available in this view. Use Download PDF instead.", "error");
+          return;
+        }
+        try {
+          await downloads.save({ filename: docxFileName(model), data: renderDocx(model) });
+        } catch (e) {
+          const code = (e as { code?: string })?.code;
+          if (code !== "declined") onNotify("The Word file could not be saved here. Try again, or use Download PDF.", "error");
+        }
+      } else exportDocx(model);
+    } catch (error) {
+      console.error(error);
+      onNotify("Word export failed. Try again.", "error");
+    } finally {
+      setExporting(null);
+    }
+  };
+
   const onNew = () => {
     const hadModel = Boolean(model);
     loadModel(null);
@@ -126,6 +152,9 @@ export function Header({ onNotify }: Props) {
         </button>
         <button type="button" className="primary" onClick={onExportPdf} disabled={!model || Boolean(exporting)} title="Download as PDF">
           <Icons.file /> <span className="label">{exporting === "pdf" ? "Preparing PDF…" : "Download PDF"}</span>
+        </button>
+        <button type="button" onClick={onExportDocx} disabled={!model || Boolean(exporting)} title="Download as an editable Word document">
+          <Icons.file /> <span className="label">{exporting === "docx" ? "Preparing Word…" : "Download Word"}</span>
         </button>
       </nav>
       {previewImage && (

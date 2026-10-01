@@ -208,3 +208,17 @@ export function placeInLane(lanes: Lane[], absoluteY: number, height: number): {
   const maxY = Math.max(4, chosen.height - height - 4);
   return { laneId: chosen.id, y: Math.round(Math.min(maxY, Math.max(4, absoluteY - chosenTop))) };
 }
+
+export type Side = "t" | "r" | "b" | "l";
+
+/** Pick the sides a connector leaves and enters by, so arrows reroute as nodes move. */
+export function chooseSides(a: { x: number; y: number; w: number; h: number }, b: typeof a): [Side, Side] {
+  const dy = b.y + b.h / 2 - (a.y + a.h / 2);
+  const gapRight = b.x - (a.x + a.w);
+  const gapLeft = a.x - (b.x + b.w);
+  const sameRow = Math.abs(dy) < Math.min(a.h, b.h) / 2;
+  if (gapRight >= 50 || (sameRow && gapRight > 0)) return ["r", "l"];
+  if (!sameRow) return dy > 0 ? ["b", "t"] : ["t", "b"];
+  if (gapLeft > 0) return ["b", "b"]; // loop back within a row
+  return ["r", "l"];
+}
