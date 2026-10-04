@@ -147,8 +147,37 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 @keyframes nudge{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
 @media (max-height:560px){.cue{display:none}}
 
-/* ---------- the five static-hero gates (must match GATES in the script) ---------- */
-@media (max-width: 720px), (orientation: portrait) and (max-width: 1024px), (orientation: portrait) and (pointer: coarse), (orientation: landscape) and (pointer: coarse) and (max-height: 560px), (prefers-reduced-motion: reduce){
+/* ---------- phones and tablets held upright: video on top, words below ---------- */
+@media (max-aspect-ratio: 13/10){
+  .poster,#hero{height:60%;bottom:auto}
+  .scrim{background:linear-gradient(0deg,var(--ivory) 40%,rgba(246,239,227,.75) 46%,rgba(246,239,227,0) 58%)}
+  .band,.b1,.b3{left:clamp(16px,5vw,48px);right:clamp(16px,5vw,48px);top:auto;bottom:calc(20px + env(safe-area-inset-bottom,0px));
+    transform:none;width:auto;max-width:640px;text-shadow:none}
+  .band::before{display:none}
+  .b3{padding:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .b1 h1{font-size:clamp(34px,9vw,60px);margin-block:10px 12px}
+  .b2 h2,.b4 h2,.b3 h2{font-size:clamp(30px,7.6vw,50px);margin-block:6px 10px}
+  .band .sub{font-size:clamp(16px,2.4vw,20px)}
+  .b4 .row{margin-top:18px}
+  .cue{bottom:auto;top:calc(60% - 52px)}
+}
+@media (min-aspect-ratio: 3/5) and (max-aspect-ratio: 13/10){
+  .poster,#hero{height:68%}
+  .scrim{background:linear-gradient(0deg,var(--ivory) 32%,rgba(246,239,227,.75) 37%,rgba(246,239,227,0) 48%)}
+  .cue{top:calc(68% - 52px)}
+}
+.cue span{white-space:nowrap}
+@media (max-width:400px){.cue{font-size:10px;letter-spacing:.08em}}
+@media (max-height: 560px) and (min-aspect-ratio: 13/10){
+  .b1 h1{font-size:clamp(28px,9vh,44px);margin-block:8px 10px}
+  .b2 h2,.b4 h2{font-size:clamp(24px,7.5vh,36px)}
+  .b3 h2{font-size:22px}.b3{padding:12px 16px;bottom:12px}.b3 .sub{font-size:14px}.b3 .printline{margin-top:10px}
+  .band .sub{font-size:15px}
+  .band{top:56%}
+  .b4 .row{margin-top:12px}
+}
+/* ---------- the five static-hero gates (now only reduced motion; must match GATES in the script) ---------- */
+@media (prefers-reduced-motion: reduce){
   .hero{height:auto}
   .stage{position:relative;height:auto;overflow:visible;display:flex;flex-direction:column;gap:22px;
     padding:calc(92px + env(safe-area-inset-top,0px)) clamp(16px,5vw,48px) 24px}
@@ -704,9 +733,34 @@ function heroProgress(){const r=hero.getBoundingClientRect();const range=hero.of
 let seekBusy=false,pendingTime=null;
 function requestSeek(t){if(!video.duration||!stage.classList.contains('video-ready'))return;if(seekBusy){pendingTime=t;return}seekBusy=true;video.currentTime=t}
 video.addEventListener('seeked',()=>{seekBusy=false;if(pendingTime!==null){const t=pendingTime;pendingTime=null;requestSeek(t)}});
-video.addEventListener('error',()=>{seekBusy=false;pendingTime=null;failVideo()});
+let triedDirect=false;
+function useDirect(){if(triedDirect){failVideo();return}triedDirect=true;video.src=VIDEO_URL;armVideo()}
+video.addEventListener('error',()=>{seekBusy=false;pendingTime=null;if(!video.src||video.src.startsWith('blob:'))useDirect();else failVideo()});
+let readied=false;
+function armVideo(){
+  video.load();
+  const ready=()=>{if(readied)return;readied=true;stage.classList.add('video-ready');
+    setTimeout(()=>{if(ring.isConnected)ring.replaceWith(makeChevron())},400);
+    seekBusy=false;requestSeek(heroProgress()*video.duration)};
+  video.addEventListener('loadeddata',ready,{once:true});
+  video.addEventListener('canplay',ready,{once:true});
+  /* iPhone Safari only paints frames after one play(); muted play is allowed */
+  video.addEventListener('loadedmetadata',()=>{const pr=video.play();if(pr&&pr.then)pr.then(()=>{video.pause();ready()}).catch(()=>{})},{once:true});
+}
 
+/* where the cup sits in the footage over time (fraction of frame width) */
+const PAN=[[0,.64],[2.5,.62],[4.7,.56],[4.8,.42],[6.2,.52],[7.7,.62],[8.5,.70],[10,.70]];
+let lastPan='';
+function panTo(p){
+  const box=video.getBoundingClientRect();if(!box.width||!box.height)return;
+  const w=(box.width/box.height)/(16/9);let pos='50% 50%';
+  if(w<.98){const t=p*10;let c=PAN[PAN.length-1][1];
+    for(let i=0;i<PAN.length-1;i++){const[a,ca]=PAN[i],[b,cb]=PAN[i+1];if(t<=b){const f=clamp((t-a)/(b-a),0,1);c=ca+(cb-ca)*f;break}}
+    pos=(clamp((c-w/2)/(1-w),0,1)*100).toFixed(1)+'% 50%'}
+  if(pos!==lastPan){lastPan=pos;video.style.objectPosition=pos;posterLayer.style.backgroundPosition=pos}
+}
 function updateCaptions(p){
+  panTo(p);
   bands.forEach((B,n)=>{
     const{a,b}=B, f=Math.min(0.045,(b-a)/4);
     let op=(n===0?1:smooth(p,a,a+f))*(n===bands.length-1?1:1-smooth(p,b-f,b));
@@ -748,23 +802,15 @@ async function loadHeroBlob(){
     blob=new Blob(chunks,{type:'video/mp4'});
   }else blob=await res.blob();
   clearTimeout(wd);ring.style.setProperty('--ld',0);
-  video.src=URL.createObjectURL(blob);video.load();
-  video.addEventListener('canplay',()=>{stage.classList.add('video-ready');setTimeout(()=>{if(ring.isConnected)ring.replaceWith(makeChevron())},400);
-    seekBusy=false;requestSeek(heroProgress()*video.duration)},{once:true});
+  video.src=URL.createObjectURL(blob);armVideo();
 }
 function initHeroOnce(){
   if(heroInit)return;heroInit=true;
   posterLayer.style.backgroundImage="url('assets/hero-poster.jpg')";
-  let started=false;const start=()=>{if(started)return;started=true;loadHeroBlob().catch(failVideo)};
+  let started=false;const start=()=>{if(started)return;started=true;loadHeroBlob().catch(useDirect)};
   const im=new Image();im.onload=start;im.onerror=start;im.src='assets/hero-poster.jpg';setTimeout(start,4000);
 }
-const GATES=[
-  '(max-width: 720px)',
-  '(orientation: portrait) and (max-width: 1024px)',
-  '(orientation: portrait) and (pointer: coarse)',
-  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
-  '(prefers-reduced-motion: reduce)'
-];
+const GATES=['(prefers-reduced-motion: reduce)'];
 function enableScrub(){
   if(scrubOn)return;scrubOn=true;initHeroOnce();
   addEventListener('scroll',onScroll,{passive:true});
