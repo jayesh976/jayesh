@@ -244,27 +244,80 @@ section.s{padding-block:clamp(72px,10vw,128px);scroll-margin-top:64px}
 .step p{color:#E8D9C3;font-size:17px;max-width:34ch}
 @media (max-width:860px){.steps{grid-template-columns:minmax(0,1fr)}.step figure{aspect-ratio:16/10}}
 
-/* try it: the mug designer */
-.studio{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center;margin-top:48px}
-.mugbox{position:relative;border-radius:24px;background:radial-gradient(ellipse 80% 70% at 45% 55%,var(--paper),#EFE4D2);border:1px solid var(--line);aspect-ratio:4/3;overflow:hidden}
-.mugbox canvas{position:absolute;inset:0;width:100%;height:100%}
-.wipe{position:absolute;inset:0;overflow:hidden;transform:translateY(calc((var(--w,0) - 1)*100%))}
-.wipe>canvas{transform:translateY(calc((1 - var(--w,0))*100%))}
-.head{position:absolute;left:21%;width:46%;top:20%;height:12px;border-radius:6px;background:linear-gradient(90deg,#2d2a28,#55504a,#2d2a28);
-  box-shadow:0 6px 0 -3px rgba(213,138,30,.85),0 10px 24px rgba(213,138,30,.35);
-  transform:translateY(calc(var(--p,0)*var(--travel,300px)));opacity:var(--hv,0);transition:opacity .35s var(--ease-soft)}
-.steam{position:absolute;left:36%;top:3%;width:14%;height:15%;pointer-events:none;opacity:0;transition:opacity 1s var(--ease-soft)}
-.studio.printed .steam{opacity:.75}
-.steam span{position:absolute;bottom:0;width:3px;height:70%;border-radius:3px;background:linear-gradient(transparent,rgba(122,69,32,.35),transparent)}
-.live .studio.printed .steam span{animation:rise 4.5s var(--ease-soft) infinite}
-.steam span:nth-child(1){left:20%;animation-delay:-1s}.steam span:nth-child(2){left:50%;animation-delay:-2.6s}.steam span:nth-child(3){left:80%;animation-delay:-3.8s}
-@keyframes rise{0%{transform:translateY(20%) scaleY(.6);opacity:0}40%{opacity:1}100%{transform:translateY(-40%) scaleY(1.1);opacity:0}}
-.done-note{position:absolute;left:16px;bottom:16px;right:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  padding:12px 14px;border-radius:14px;background:rgba(251,247,239,.86);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);pointer-events:none}
-.studio.printed .done-note{opacity:1;transform:none;pointer-events:auto}
-.done-note b{font:400 20px/1.2 var(--f-display)}
-.controls{display:grid;gap:22px}
+/* try it: the 3D mug studio. Large preview in the middle, controls in a side panel */
+.ms{--champ:#C2A36B;--champ-deep:#8F7240;--champ-soft:#F3EAD8;--porcelain:#FFFDF9;
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:clamp(20px,3vw,36px);align-items:start;margin-top:44px}
+.ms-stage{position:sticky;top:calc(76px + env(safe-area-inset-top,0px));border-radius:28px;overflow:hidden;height:min(760px,calc(100svh - 104px));min-height:440px;
+  background:radial-gradient(ellipse 70% 60% at 50% 38%,var(--porcelain) 0%,#F7F1E7 55%,#EDE3D2 100%);
+  border:1px solid var(--line);box-shadow:inset 0 -60px 80px -60px rgba(143,114,64,.18)}
+.ms-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;outline:none}
+.ms-stage canvas.grabbing{cursor:grabbing}
+.ms-stage canvas.over{cursor:move}
+.ms-stage canvas:focus-visible{box-shadow:inset 0 0 0 3px var(--champ)}
+.ms-load{position:absolute;inset:0;display:grid;place-items:center;font:500 12px/1.4 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--champ-deep);text-align:center;padding:24px}
+.ms-load[hidden]{display:none}
+.ms-top{position:absolute;left:14px;right:14px;top:14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;pointer-events:none}
+.ms-top>*{pointer-events:auto}
+.pillset{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,253,249,.82);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.pillset button{font:600 13px/1 var(--f-body);color:var(--umber);background:transparent;border:0;border-radius:999px;padding:9px 12px;cursor:pointer;transition:background-color .25s var(--ease-soft),color .25s var(--ease-soft)}
+.pillset button:hover{color:var(--cocoa);background:var(--champ-soft)}
+.pillset button[aria-pressed=true]{background:var(--cocoa);color:var(--paper)}
+.ms-zoom{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px}
+.ms-zoom button{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--cocoa);
+  background:rgba(255,253,249,.88);border:1px solid var(--line);box-shadow:0 8px 20px -14px rgba(62,31,14,.6);transition:transform .3s var(--ease-out),background-color .25s}
+.ms-zoom button:hover{transform:scale(1.06);background:#fff}
+.ms-hint{position:absolute;left:16px;bottom:16px;right:72px;font:500 11px/1.5 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--champ-deep)}
+.ms-badge{position:absolute;left:50%;top:64px;transform:translateX(-50%);font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--champ-deep);background:rgba(255,253,249,.8);border:1px solid var(--line);padding:7px 10px;border-radius:999px;white-space:nowrap}
+
+.ms-panel{display:grid;gap:18px;padding:clamp(18px,2.4vw,26px);border-radius:24px;background:var(--porcelain);border:1px solid var(--line);
+  box-shadow:0 30px 60px -44px rgba(62,31,14,.5)}
+.ms-label{font:500 12px/1.4 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--umber);margin-bottom:8px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:var(--champ-soft);border:1px solid #E6D7B9}
+.seg button{font:600 15px/1.2 var(--f-body);color:var(--umber);background:transparent;border:0;border-radius:10px;padding:12px 10px;cursor:pointer;
+  display:grid;gap:2px;justify-items:center;transition:background-color .25s var(--ease-soft),color .25s,box-shadow .25s}
+.seg button small{font:500 11px/1.2 var(--f-mono);letter-spacing:.06em;opacity:.8}
+.seg button[aria-pressed=true]{background:var(--porcelain);color:var(--cocoa);box-shadow:0 6px 16px -10px rgba(143,114,64,.7),inset 0 0 0 1px var(--champ)}
+.ms-note{font-size:15px;color:var(--umber);margin-top:8px}
+.sides{display:grid;grid-template-columns:1fr;gap:10px}
+.sides.two{grid-template-columns:1fr 1fr}
+.sidecard{position:relative;display:grid;gap:10px;padding:12px;border-radius:16px;border:1.5px dashed #D4C2A0;background:#FFFDF9;cursor:pointer;
+  transition:border-color .25s var(--ease-soft),background-color .25s,box-shadow .3s}
+.sidecard:hover{border-color:var(--champ)}
+.sidecard.sel{border-style:solid;border-color:var(--champ);background:var(--champ-soft);box-shadow:0 10px 24px -18px rgba(143,114,64,.9)}
+.sidecard.drag{border-color:var(--gold-deep);background:#F7ECD6}
+.sidecard .top{display:flex;gap:10px;align-items:center;min-width:0}
+.thumb{flex:none;width:52px;height:52px;border-radius:10px;border:1px solid var(--line);overflow:hidden;display:grid;place-items:center;
+  background:repeating-conic-gradient(#F1E9DA 0 25%,#FFFDF9 0 50%) 0 0/12px 12px}
+.thumb img{width:100%;height:100%;object-fit:contain}
+.thumb svg{color:var(--champ)}
+.sidecard b{display:block;font:600 15px/1.25 var(--f-body)}
+.sidecard .fname{display:block;font-size:13px;color:var(--umber);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidecard .meta{min-width:0}
+.sidecard .acts{display:flex;gap:6px;flex-wrap:wrap}
+.mini{font:600 13px/1 var(--f-body);color:var(--cocoa);background:#fff;border:1.5px solid #D4C2A0;border-radius:999px;padding:8px 11px;cursor:pointer;
+  transition:border-color .2s,background-color .2s}
+.mini:hover{border-color:var(--cocoa)}
+.mini.primary{background:var(--cocoa);border-color:var(--cocoa);color:var(--paper)}
+.mini:disabled{opacity:.45;cursor:not-allowed}
+.formats{font-size:13px;color:var(--umber)}
+.adjust{display:grid;gap:12px;padding-top:4px}
+.adjust[aria-disabled=true]{opacity:.5}
+.adjust .row{display:grid;grid-template-columns:86px minmax(0,1fr) 52px;gap:10px;align-items:center}
+.adjust .row span{font-size:14px;font-weight:600;color:var(--umber)}
+.adjust .row output{font:500 12px/1 var(--f-mono);color:var(--champ-deep);text-align:right;font-variant-numeric:tabular-nums}
+.adjust input[type=range]{width:100%;accent-color:var(--champ-deep);height:28px}
+.adjust .btns{display:flex;gap:6px;flex-wrap:wrap}
+.samples{display:flex;gap:6px;flex-wrap:wrap}
+.opt{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--cocoa);cursor:pointer}
+.opt input{width:18px;height:18px;margin-top:3px;accent-color:var(--champ-deep);flex:none}
+.opt small{display:block;color:var(--umber);font-size:13px}
+.ms-actions{display:flex;gap:10px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line)}
+.ms-actions .btn{flex:1 1 auto;padding-top:14px}
+.ms-err{font-size:14px;color:#A3133F}
+.ms-err:empty{display:none}
+@media (max-width:980px){.ms{grid-template-columns:minmax(0,1fr)}.ms-stage{position:relative;top:auto;height:auto;min-height:0;aspect-ratio:1/1;max-height:78vh}}
+@media (max-width:480px){.ms-stage{aspect-ratio:4/5}.sides.two{grid-template-columns:1fr}.ms-hint{display:none}.pillset button{padding:8px 9px;font-size:12px}.ms-badge{top:auto;bottom:16px;left:16px;transform:none}}
 .field{display:grid;gap:8px;min-width:0}
 .field>span,.field legend{font:500 12px/1.4 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--umber)}
 fieldset{border:0;margin:0;padding:0;min-width:0}
@@ -282,11 +335,7 @@ input[type=text],input[type=tel],input[type=number],select,textarea{width:100%;f
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(213,138,30,.25)}
 input[type=file]{font:400 15px/1.4 var(--f-body);color:var(--umber);max-width:100%}
 input[type=file]::file-selector-button{font:600 15px var(--f-body);color:var(--cocoa);background:var(--paper);border:1.5px solid var(--line-strong);border-radius:999px;padding:8px 14px;margin-right:10px;cursor:pointer}
-.hold{position:relative;overflow:hidden;width:100%;padding:18px 22px;font-size:18px;user-select:none;-webkit-user-select:none;touch-action:none}
-.hold .fill{position:absolute;inset:0;background:linear-gradient(90deg,var(--teal),var(--gold) 60%,var(--rose));transform-origin:left;transform:scaleX(var(--p,0));opacity:.95}
-.hold .lbl{position:relative}
 .hint{font-size:15px;color:var(--umber)}
-@media (max-width:900px){.studio{grid-template-columns:minmax(0,1fr)}}
 
 /* occasions: big rows */
 .rows{margin-top:40px;border-top:1px solid var(--line)}
@@ -502,53 +551,99 @@ footer{background:var(--cocoa);color:#E8D9C3;padding-block:56px calc(40px + env(
   <section class="s" id="try" aria-labelledby="try-h">
     <div class="wrap">
       <div class="s-head rv">
-        <p class="kicker">Try it</p>
-        <h2 id="try-h">Try it on a cup.</h2>
-        <p class="lede">Pick a design and add a name. Then press and hold Print, just like our machine.</p>
+        <p class="kicker">Mug studio</p>
+        <h2 id="try-h">Design your mug in 3D.</h2>
+        <p class="lede">Start with a large, plain white ceramic mug. Upload your logo, photo or artwork, print one side or both, and turn the mug all the way round to see exactly how it will look.</p>
       </div>
-      <div class="studio" id="studio">
-        <div class="mugbox rv" id="mugbox">
-          <canvas id="mugBase" aria-hidden="true"></canvas>
-          <div class="wipe" id="wipe"><canvas id="mugPrint" aria-hidden="true"></canvas></div>
-          <div class="head" id="head" aria-hidden="true"></div>
-          <div class="steam" aria-hidden="true"><span></span><span></span><span></span></div>
-          <div class="done-note" role="status" aria-live="polite">
-            <b id="doneText">Printed. Like it?</b>
-            <a class="btn small" href="#order" id="orderThis">Order this cup</a>
+      <div class="ms" id="ms">
+        <div class="ms-stage" id="msStage">
+          <canvas id="msCanvas" tabindex="0" role="img" aria-label="3D preview of your mug. Drag or use the arrow keys to turn it."></canvas>
+          <div class="ms-load" id="msLoad">Loading the 3D mug</div>
+          <div class="ms-top">
+            <div class="pillset" role="group" aria-label="Look at the mug from">
+              <button type="button" data-view="front" aria-pressed="true">Front</button>
+              <button type="button" data-view="back" aria-pressed="false">Back</button>
+              <button type="button" data-view="left" aria-pressed="false">Left</button>
+              <button type="button" data-view="right" aria-pressed="false">Handle</button>
+            </div>
           </div>
+          <span class="ms-badge" id="msBadge">Large mug · 15 oz · 440 ml</span>
+          <div class="ms-zoom" role="group" aria-label="Zoom">
+            <button type="button" id="zIn" aria-label="Zoom in"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button type="button" id="zOut" aria-label="Zoom out"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button type="button" id="zReset" aria-label="Reset view"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3.5 9a5.5 5.5 0 1 0 1.7-4M3 2.5V6h3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+          <p class="ms-hint" id="msHint">Drag to turn the mug. Drag your design to move it.</p>
         </div>
-        <div class="controls rv" style="--i:1">
-          <fieldset>
-            <legend>Design</legend>
-            <div class="chips" id="motifChips">
-              <span class="chip"><input type="radio" name="motif" id="m-madhubani" value="madhubani"><label for="m-madhubani">Madhubani</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-warli" value="warli"><label for="m-warli">Warli</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-mandala" value="mandala" checked><label for="m-mandala">Mandala</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-rangoli" value="rangoli"><label for="m-rangoli">Rangoli</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-geometric" value="geometric"><label for="m-geometric">Geometric</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-monogram" value="monogram"><label for="m-monogram">Monogram</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-quote" value="quote"><label for="m-quote">Desi quote</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-stripes" value="stripes"><label for="m-stripes">Retro stripes</label></span>
-              <span class="chip"><input type="radio" name="motif" id="m-photo" value="photo"><label for="m-photo">My photo</label></span>
+
+        <div class="ms-panel" id="msPanel">
+          <div>
+            <p class="ms-label" id="modeLbl">Printing</p>
+            <div class="seg" role="group" aria-labelledby="modeLbl">
+              <button type="button" id="modeSingle" aria-pressed="true">Single side<small>one design</small></button>
+              <button type="button" id="modeBoth" aria-pressed="false">Both sides<small>two designs</small></button>
             </div>
-          </fieldset>
-          <label class="field" for="mugText"><span>Name or short line</span>
-            <input type="text" id="mugText" maxlength="22" value="Priya" autocomplete="off" placeholder="Priya, Happy Diwali, 25.11.2026">
-          </label>
-          <fieldset>
-            <legend>Main colour</legend>
-            <div class="chips">
-              <span class="chip"><input type="radio" name="accent" id="c-saffron" value="#D9861C" checked><label for="c-saffron"><i class="dot" style="--sw:#D9861C"></i>Saffron</label></span>
-              <span class="chip"><input type="radio" name="accent" id="c-teal" value="#0E7C72"><label for="c-teal"><i class="dot" style="--sw:#0E7C72"></i>Teal</label></span>
-              <span class="chip"><input type="radio" name="accent" id="c-rose" value="#C81E5E"><label for="c-rose"><i class="dot" style="--sw:#C81E5E"></i>Rose</label></span>
-              <span class="chip"><input type="radio" name="accent" id="c-indigo" value="#2B3A78"><label for="c-indigo"><i class="dot" style="--sw:#2B3A78"></i>Indigo</label></span>
+            <p class="ms-note" id="modeNote">One design, printed on the front of the mug.</p>
+          </div>
+
+          <div>
+            <p class="ms-label">Your designs</p>
+            <div class="sides" id="sides">
+              <div class="sidecard sel" data-side="0" tabindex="0" role="button" aria-label="Side 1, front. Select to adjust">
+                <div class="top"><span class="thumb" id="thumb0"></span><span class="meta"><b>Side 1 · Front</b><span class="fname" id="fname0">No design yet</span></span></div>
+                <div class="acts">
+                  <button type="button" class="mini primary" data-upload="0">Upload design</button>
+                  <button type="button" class="mini" data-del="0" disabled>Delete</button>
+                </div>
+                <input type="file" id="file0" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" hidden>
+              </div>
+              <div class="sidecard" data-side="1" tabindex="0" role="button" aria-label="Side 2, back. Select to adjust" hidden>
+                <div class="top"><span class="thumb" id="thumb1"></span><span class="meta"><b>Side 2 · Back</b><span class="fname" id="fname1">No design yet</span></span></div>
+                <div class="acts">
+                  <button type="button" class="mini primary" data-upload="1">Upload design</button>
+                  <button type="button" class="mini" data-del="1" disabled>Delete</button>
+                </div>
+                <input type="file" id="file1" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" hidden>
+              </div>
             </div>
-          </fieldset>
-          <label class="field" for="mugPhoto" id="photoField" hidden><span>Your photo</span>
-            <input type="file" id="mugPhoto" accept="image/*">
-          </label>
-          <button class="btn hold" type="button" id="holdBtn"><span class="fill" aria-hidden="true"></span><span class="lbl" id="holdLbl">Press and hold to print</span></button>
-          <p class="hint" id="hint">The faint pattern on the cup is your design. Hold Print to see it in full colour.</p>
+            <p class="formats" style="margin-top:8px">PNG, JPG or SVG, up to 15 MB. You can also drop a file onto a side.</p>
+            <p class="ms-err" id="msErr" role="alert"></p>
+          </div>
+
+          <div class="adjust" id="adjust" aria-disabled="true">
+            <p class="ms-label" id="adjLbl" style="margin:0">Adjust side 1</p>
+            <label class="row" for="aSize"><span>Size</span><input type="range" id="aSize" min="10" max="100" value="60" disabled><output id="oSize">60%</output></label>
+            <label class="row" for="aRot"><span>Rotate</span><input type="range" id="aRot" min="-180" max="180" value="0" disabled><output id="oRot">0°</output></label>
+            <label class="row" for="aX"><span>Left, right</span><input type="range" id="aX" min="0" max="100" value="50" disabled><output id="oX">50</output></label>
+            <label class="row" for="aY"><span>Up, down</span><input type="range" id="aY" min="0" max="100" value="50" disabled><output id="oY">50</output></label>
+            <div class="btns">
+              <button type="button" class="mini" id="aCenter" disabled>Center</button>
+              <button type="button" class="mini" id="aFit" disabled>Fit to area</button>
+              <button type="button" class="mini" id="aRotL" disabled aria-label="Rotate left 15 degrees">↺ 15°</button>
+              <button type="button" class="mini" id="aRotR" disabled aria-label="Rotate right 15 degrees">↻ 15°</button>
+              <button type="button" class="mini" id="aReplace" disabled>Replace</button>
+            </div>
+          </div>
+
+          <div>
+            <p class="ms-label">No design handy? Try one of ours</p>
+            <div class="samples">
+              <button type="button" class="mini" data-sample="mandala">Mandala</button>
+              <button type="button" class="mini" data-sample="madhubani">Madhubani</button>
+              <button type="button" class="mini" data-sample="warli">Warli</button>
+              <button type="button" class="mini" data-sample="geometric">Geometric</button>
+            </div>
+          </div>
+
+          <div style="display:grid;gap:12px">
+            <label class="opt" for="optHandle"><input type="checkbox" id="optHandle"><span>Print closer to the handle<small>Makes the print area wider. The handle itself is never printed.</small></span></label>
+            <label class="opt" for="optGuides"><input type="checkbox" id="optGuides" checked><span>Show print area guides<small>The dashed lines are only a guide. They are not printed.</small></span></label>
+          </div>
+
+          <div class="ms-actions">
+            <button type="button" class="btn ghost" id="msReset">Reset</button>
+            <a class="btn" href="#order" id="msOrder">Order this mug</a>
+          </div>
         </div>
       </div>
     </div>
@@ -856,7 +951,6 @@ document.addEventListener('visibilitychange',()=>document.body.classList.toggle(
 function pinFinal(){
   document.querySelectorAll('.rv').forEach(el=>el.classList.add('in','done'));
   ribbons.forEach(R=>{R.paths.forEach(o=>{o.p.style.strokeDashoffset=0;o.last=0});R.svg.classList.add('bloom');R.bloom=true});
-  if(studio.p<1&&!studio.done)completePrint(true);
 }
 function unpinFinal(){drawRibbons()}
 reduce.addEventListener('change',e=>{if(e.matches)pinFinal();else applyHeroMode()});
@@ -1035,53 +1129,296 @@ function drawMug(canvas,motif,o){
 const cardCanvases=[...document.querySelectorAll('.card canvas')];
 function paintCards(){cardCanvases.forEach((cv,i)=>drawMug(cv,cv.dataset.motif,{alpha:1,accent:null,seed:5+i,text:cv.dataset.motif==='monogram'?'Kalakriti':'',showName:false}))}
 
-/* ================= the studio (press and hold to print) ================= */
-const studio={p:0,holding:false,done:false,raf:null,last:0,img:null};
-const elStudio=document.getElementById('studio'),mugBox=document.getElementById('mugbox'),baseCv=document.getElementById('mugBase'),printCv=document.getElementById('mugPrint');
-const wipe=document.getElementById('wipe'),head=document.getElementById('head'),holdBtn=document.getElementById('holdBtn'),holdLbl=document.getElementById('holdLbl');
-const textIn=document.getElementById('mugText'),photoField=document.getElementById('photoField'),photoIn=document.getElementById('mugPhoto'),hint=document.getElementById('hint');
-function opts(){const motif=(document.querySelector('input[name=motif]:checked')||{}).value||'mandala';
-  const accent=(document.querySelector('input[name=accent]:checked')||{}).value;const text=textIn.value.trim();
-  return{motif,accent,text,useText:!!text,showName:!!text,img:studio.img,seed:23}}
-let geo=null;
-function paintStudio(){const o=opts();
-  geo=drawMug(printCv,o.motif,Object.assign({alpha:1},o));
-  drawMug(baseCv,o.motif,Object.assign({alpha:.16},o));
-  head.style.setProperty('--travel',(geo.ph)+'px');head.style.top=(geo.py-6)+'px';head.style.left=(geo.px)+'px';head.style.width=(geo.pw)+'px';
-  photoField.hidden=o.motif!=='photo';
+/* ================= 3D mug studio (Three.js) ================= */
+const MS=(function(){
+const $=id=>document.getElementById(id);
+const stageEl=$('msStage'),cv=$('msCanvas'),loadEl=$('msLoad'),errEl=$('msErr');
+const TAU=Math.PI*2;
+/* a large mug: about 9.5 cm wide and 11 cm tall, in scene units */
+const R=.5,H=1.18,BAND0=.1,BANDH=.92,CIRC=TAU*R;
+const coarse=matchMedia('(pointer: coarse)').matches;
+const TW=coarse?2048:3072,TH=Math.round(TW*BANDH/CIRC);
+const tcv=document.createElement('canvas');tcv.width=TW;tcv.height=TH;const tctx=tcv.getContext('2d');
+const blank=()=>({img:null,name:'',thumb:'',cx:.5,cy:.5,size:.6,rot:0,sample:''});
+const S={mode:'single',sel:0,near:false,guides:true,sides:[blank(),blank()]};
+/* texture u: 0 = handle, .25 = back, .5 = left, .75 = front */
+const CENTER=[.75,.25];
+const VIEWS={front:0,back:Math.PI,left:Math.PI/2,right:-Math.PI/2};
+const view={rot:0,rotT:0,tilt:.16,tiltT:.16,dist:4.4,distT:4.4,vel:0};
+const DIST={min:2.5,max:6.2,base:4.4};
+let T=null,renderer=null,scene,camera,group,sleeve,handle,tex,raf=null,lt=0,ready=false,ray,ndc;
+
+function region(i){const w=(S.near?166:140)/360;return{x:(CENTER[i]-w/2)*TW,y:TH*.04,w:w*TW,h:TH*.92}}
+const active=()=>S.mode==='both'?[0,1]:[0];
+function dims(i){const s=S.sides[i],r=region(i),dw=s.size*r.w,dh=dw*s.img.height/s.img.width;return{r,dw,dh,x:r.x+s.cx*r.w,y:r.y+s.cy*r.h}}
+function fit(i){const s=S.sides[i],r=region(i);return Math.max(.1,Math.min(.82,.86*(r.h/r.w)*(s.img.width/s.img.height)))}
+
+/* ---------- the print: one canvas wrapped around the mug ---------- */
+function paint(){
+  tctx.clearRect(0,0,TW,TH);
+  active().forEach(i=>{
+    const s=S.sides[i],r=region(i);
+    if(s.img){const d=dims(i);tctx.save();tctx.beginPath();tctx.rect(r.x,r.y,r.w,r.h);tctx.clip();
+      tctx.translate(d.x,d.y);tctx.rotate(s.rot*Math.PI/180);tctx.drawImage(s.img,-d.dw/2,-d.dh/2,d.dw,d.dh);tctx.restore()}
+    if(!S.guides)return;
+    const lw=Math.max(2,TW*.0011);
+    tctx.save();tctx.setLineDash([TW*.006,TW*.004]);tctx.lineWidth=lw;tctx.strokeStyle=i===S.sel?'rgba(176,140,78,.9)':'rgba(176,140,78,.45)';
+    roundRect(tctx,r.x+lw,r.y+lw,r.w-2*lw,r.h-2*lw,TH*.03);tctx.stroke();tctx.restore();
+    if(!s.img){tctx.save();tctx.fillStyle='rgba(160,128,74,.75)';tctx.textAlign='center';tctx.textBaseline='middle';
+      tctx.font=`600 ${Math.round(TH*.05)}px Mukta, sans-serif`;tctx.fillText(i===0?'Side 1 print area':'Side 2 print area',r.x+r.w/2,r.y+r.h/2-TH*.03);
+      tctx.font=`500 ${Math.round(TH*.032)}px "IBM Plex Mono", monospace`;tctx.fillText('UPLOAD A DESIGN',r.x+r.w/2,r.y+r.h/2+TH*.04);tctx.restore()}
+    else if(i===S.sel){const d=dims(i),hs=TH*.018;tctx.save();tctx.translate(d.x,d.y);tctx.rotate(s.rot*Math.PI/180);
+      tctx.lineWidth=lw*1.3;tctx.strokeStyle='rgba(176,140,78,.95)';tctx.strokeRect(-d.dw/2,-d.dh/2,d.dw,d.dh);tctx.fillStyle='#FFFDF9';
+      [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([a,b])=>{tctx.fillRect(a*d.dw/2-hs/2,b*d.dh/2-hs/2,hs,hs);tctx.strokeRect(a*d.dw/2-hs/2,b*d.dh/2-hs/2,hs,hs)});tctx.restore()}
+  });
+  if(tex){tex.needsUpdate=true;requestRender()}
 }
-function setP(p){studio.p=p;const v=p.toFixed(4);const w=p>=1?1:(geo?(geo.py+p*geo.ph)/geo.H:p);
-  mugBox.style.setProperty('--p',v);mugBox.style.setProperty('--w',w.toFixed(4));holdBtn.style.setProperty('--p',v)}
-function stepStudio(now){
-  const dt=Math.min(64,now-(studio.last||now));studio.last=now;
-  if(studio.holding)setP(Math.min(1,studio.p+dt/1700));else setP(Math.max(0,studio.p-dt/900));
-  head.style.setProperty('--hv',studio.p>0&&studio.p<1?1:0);
-  if(studio.p>=1){completePrint();studio.raf=null;studio.last=0;return}
-  if(studio.holding||studio.p>0)studio.raf=requestAnimationFrame(stepStudio);else{studio.raf=null;studio.last=0}
+
+/* ---------- 3D scene ---------- */
+function init(){
+  T=window.THREE;
+  try{renderer=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true,powerPreference:'high-performance'})}
+  catch(e){fail('This browser cannot show 3D. Try Chrome or Safari, or send us your design in the order form.');return}
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,coarse?1.75:2));
+  renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
+  scene=new T.Scene();
+  camera=new T.PerspectiveCamera(28,1,.1,60);
+
+  /* studio reflections: a soft room with light panels, baked into an environment map */
+  const room=new T.Scene();
+  room.add(new T.Mesh(new T.BoxGeometry(12,12,12),new T.MeshBasicMaterial({color:0x5e554d,side:T.BackSide})));
+  const panel=(w,h,x,y,z,rx,ry,k)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:new T.Color(k,k*.98,k*.94),side:T.DoubleSide}));m.position.set(x,y,z);m.rotation.set(rx,ry,0);room.add(m)};
+  panel(7,4,0,5.9,0,Math.PI/2,0,2.6);
+  panel(1.4,7,-5.9,.5,1.2,0,Math.PI/2,5);
+  panel(.9,7,5.9,.5,-1.5,0,-Math.PI/2,3.2);
+  panel(5,3,0,1,5.9,0,Math.PI,1.4);
+  panel(8,2,0,-5.9,0,-Math.PI/2,0,.9);
+  const pm=new T.PMREMGenerator(renderer);scene.environment=pm.fromScene(room,.025).texture;pm.dispose();
+
+  scene.add(new T.HemisphereLight(0xffffff,0xe9dcc6,.35));
+  const key=new T.DirectionalLight(0xfff4e6,.9);key.position.set(-2.2,4.2,2.6);key.castShadow=true;
+  key.shadow.mapSize.set(coarse?1024:2048,coarse?1024:2048);Object.assign(key.shadow.camera,{left:-1.6,right:1.6,top:1.6,bottom:-1.6,near:1,far:12});key.shadow.bias=-.0004;key.shadow.radius=3;
+  scene.add(key);
+
+  group=new T.Group();scene.add(group);
+  const ceramic=new T.MeshPhysicalMaterial({color:0xf9f7f2,roughness:.14,metalness:0,clearcoat:1,clearcoatRoughness:.05,envMapIntensity:1.05});
+
+  /* body: one turned profile with a real wall, rounded rim and a small foot */
+  const P=[[0,.014],[R*.78,.002],[R-.04,.004],[R-.01,.026],[R,.07],[R,H-.035],[R-.003,H-.01],[R-.014,H],[R-.028,H-.004],[R-.036,H-.028],[R-.036,.13],[R-.07,.09],[R-.16,.082],[0,.08]];
+  const body=new T.Mesh(new T.LatheGeometry(P.map(([x,y])=>new T.Vector2(x,y)),180),ceramic);
+  body.castShadow=true;body.receiveShadow=true;group.add(body);
+
+  /* handle: a smooth loop on the +x side */
+  const hp=[[R-.04,.86*H],[R+.13,.9*H],[R+.29,.79*H],[R+.33,.55*H],[R+.27,.32*H],[R+.12,.22*H],[R-.04,.24*H]].map(([x,y])=>new T.Vector3(x,y,0));
+  const hg=new T.TubeGeometry(new T.CatmullRomCurve3(hp,false,'catmullrom',.5),120,.058,24,false);
+  handle=new T.Mesh(hg,ceramic);handle.scale.set(1,1,1.18);handle.castShadow=true;group.add(handle);
+
+  /* the print sleeve: sits a hair above the glaze and carries the design texture */
+  tex=new T.CanvasTexture(tcv);tex.encoding=T.sRGBEncoding;tex.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  const ink=new T.MeshPhysicalMaterial({map:tex,transparent:true,roughness:.2,metalness:0,clearcoat:1,clearcoatRoughness:.06,
+    polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,depthWrite:false});
+  sleeve=new T.Mesh(new T.CylinderGeometry(R+.0012,R+.0012,BANDH,180,1,true,Math.PI/2,TAU),ink);
+  sleeve.position.y=BAND0+BANDH/2;sleeve.renderOrder=2;group.add(sleeve);
+
+  /* floor: real cast shadow plus a soft contact shadow */
+  const floor=new T.Mesh(new T.PlaneGeometry(10,10),new T.ShadowMaterial({opacity:.16}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+  const sc=document.createElement('canvas');sc.width=sc.height=128;const sx=sc.getContext('2d');const g=sx.createRadialGradient(64,64,0,64,64,64);
+  g.addColorStop(0,'rgba(62,40,20,.55)');g.addColorStop(.45,'rgba(62,40,20,.22)');g.addColorStop(1,'rgba(62,40,20,0)');sx.fillStyle=g;sx.fillRect(0,0,128,128);
+  const blob=new T.Mesh(new T.PlaneGeometry(1.5,1.5),new T.MeshBasicMaterial({map:new T.CanvasTexture(sc),transparent:true,depthWrite:false}));
+  blob.rotation.x=-Math.PI/2;blob.position.y=.002;scene.add(blob);
+
+  ray=new T.Raycaster();ndc=new T.Vector2();
+  new ResizeObserver(resize).observe(stageEl);resize();
+  ready=true;loadEl.hidden=true;paint();requestRender();
 }
-function kick(){if(studio.raf===null)studio.raf=requestAnimationFrame(stepStudio)}
-function completePrint(instant){
-  studio.holding=false;studio.done=true;setP(1);head.style.setProperty('--hv',0);elStudio.classList.add('printed');
-  holdLbl.textContent='Printed. Change the design to print again';
-  const o=opts();document.getElementById('doneText').textContent=o.text?`Printed for ${o.text}.`:'Printed. Like it?';
+function fail(msg){loadEl.hidden=false;loadEl.textContent=msg;loadEl.style.textTransform='none';loadEl.style.letterSpacing='0';loadEl.style.font='600 16px/1.5 var(--f-body)'}
+function resize(){if(!renderer)return;const w=stageEl.clientWidth,h=stageEl.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;
+  DIST.base=w/h<.9?5.6:4.4;if(!resize.done){view.dist=view.distT=DIST.base;resize.done=true}camera.updateProjectionMatrix();requestRender()}
+
+function apply(){
+  group.rotation.y=view.rot;
+  const ty=.56;camera.position.set(0,ty+Math.sin(view.tilt)*view.dist,Math.cos(view.tilt)*view.dist);camera.lookAt(0,ty,0);
 }
-function resetPrint(){if(!studio.done&&studio.p===0)return;studio.done=false;elStudio.classList.remove('printed');setP(0);holdLbl.textContent='Press and hold to print'}
-function startHold(e){if(e&&e.button>0)return;if(studio.done)return;
-  if(reduce.matches){completePrint(true);return}
-  studio.holding=true;holdLbl.textContent='Printing… keep holding';kick()}
-function endHold(){if(!studio.holding)return;studio.holding=false;if(!studio.done)holdLbl.textContent='Press and hold to print';kick()}
-holdBtn.addEventListener('pointerdown',e=>{holdBtn.setPointerCapture&&holdBtn.setPointerCapture(e.pointerId);startHold(e)});
-holdBtn.addEventListener('pointerup',endHold);holdBtn.addEventListener('pointercancel',endHold);holdBtn.addEventListener('lostpointercapture',endHold);
-holdBtn.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){e.preventDefault();startHold()}});
-holdBtn.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();endHold()}});
-holdBtn.addEventListener('contextmenu',e=>e.preventDefault());
-document.querySelectorAll('input[name=motif],input[name=accent]').forEach(r=>r.addEventListener('change',()=>{resetPrint();paintStudio()}));
-let tt=null;textIn.addEventListener('input',()=>{clearTimeout(tt);tt=setTimeout(()=>{resetPrint();paintStudio()},120)});
-photoIn.addEventListener('change',()=>{const f=photoIn.files&&photoIn.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=()=>{const im=new Image();im.onload=()=>{studio.img=im;resetPrint();paintStudio();hint.textContent='Looks good? Hold Print to see it in full colour.'};im.src=rd.result};rd.readAsDataURL(f)});
-document.querySelectorAll('.card[data-motif]').forEach(a=>a.addEventListener('click',()=>{const r=document.getElementById('m-'+a.dataset.motif);if(r){r.checked=true;resetPrint();paintStudio()}}));
-document.getElementById('orderThis').addEventListener('click',()=>{const o=opts();document.getElementById('f-design').value=o.motif;if(o.text)document.getElementById('f-text').value=o.text});
-document.querySelectorAll('[data-qty]').forEach(a=>a.addEventListener('click',()=>{document.getElementById('f-qty').value=a.dataset.qty}));
+function loop(now){
+  raf=null;const dt=Math.min(50,now-(lt||now));lt=now;
+  if(drag.mode!=='rotate'&&Math.abs(view.vel)>1e-5){view.rotT+=view.vel*dt;view.vel*=Math.pow(.9,dt/16.7)}else if(drag.mode!=='rotate')view.vel=0;
+  const k=reduce.matches?1:1-Math.pow(1-.2,dt/16.7);
+  view.rot+=(view.rotT-view.rot)*k;view.tilt+=(view.tiltT-view.tilt)*k;view.dist+=(view.distT-view.dist)*k;
+  apply();renderer.render(scene,camera);
+  const busy=drag.mode||Math.abs(view.vel)>1e-5||Math.abs(view.rotT-view.rot)>1e-4||Math.abs(view.tiltT-view.tilt)>1e-4||Math.abs(view.distT-view.dist)>1e-4;
+  if(busy)raf=requestAnimationFrame(loop);else lt=0;
+  syncViewPills();
+}
+function requestRender(){if(ready&&raf===null)raf=requestAnimationFrame(loop)}
+
+/* ---------- pointer: turn the mug, or drag a design across its surface ---------- */
+function hit(e){
+  const b=cv.getBoundingClientRect();ndc.set((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1);
+  ray.setFromCamera(ndc,camera);const h=ray.intersectObjects([handle,sleeve],false)[0];
+  if(!h||h.object!==sleeve||!h.uv)return null;return{x:h.uv.x*TW,y:(1-h.uv.y)*TH};
+}
+function designAt(p){
+  for(const i of active().sort((a,b)=>(a===S.sel?-1:b===S.sel?1:0))){const s=S.sides[i];if(!s.img)continue;const d=dims(i),a=-s.rot*Math.PI/180;
+    const dx=p.x-d.x,dy=p.y-d.y,rx=dx*Math.cos(a)-dy*Math.sin(a),ry=dx*Math.sin(a)+dy*Math.cos(a);
+    if(Math.abs(rx)<=d.dw/2+TH*.02&&Math.abs(ry)<=d.dh/2+TH*.02)return i}
+  return -1;
+}
+const ptrs=new Map();const drag={mode:null,side:-1,last:null,uv:null,pinch:0,dist:0};
+function onDown(e){
+  if(!ready)return;cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2){const[a,b]=[...ptrs.values()];drag.mode='pinch';drag.pinch=Math.hypot(a.x-b.x,a.y-b.y);drag.dist=view.distT;return}
+  const p=hit(e),i=p?designAt(p):-1;
+  if(i>=0){drag.mode='move';drag.side=i;drag.uv=p;if(S.sel!==i)select(i,false)}else drag.mode='rotate';
+  drag.last={x:e.clientX,y:e.clientY,t:performance.now()};view.vel=0;cv.classList.add('grabbing');requestRender();
+}
+function onMove(e){
+  if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(!drag.mode){if(e.pointerType==='mouse')hover(e);return}
+  if(drag.mode==='pinch'&&ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);setZoom(drag.dist*drag.pinch/Math.max(20,d));return}
+  const now=performance.now(),dx=e.clientX-drag.last.x,dy=e.clientY-drag.last.y,dt=Math.max(8,now-drag.last.t);drag.last={x:e.clientX,y:e.clientY,t:now};
+  if(drag.mode==='rotate'){const r=dx*.0085;view.rotT+=r;view.tiltT=Math.min(.62,Math.max(-.1,view.tiltT+dy*.004));view.vel=view.vel*.5+(r/dt)*.5;requestRender()}
+  else if(drag.mode==='move'){const p=hit(e);if(!p)return;const ddx=p.x-drag.uv.x,ddy=p.y-drag.uv.y;drag.uv=p;if(Math.abs(ddx)>TW/4)return;
+    const s=S.sides[drag.side],r=region(drag.side);s.cx=clamp(s.cx+ddx/r.w,0,1);s.cy=clamp(s.cy+ddy/r.h,0,1);paint();syncAdjust()}
+}
+function onUp(e){
+  ptrs.delete(e.pointerId);
+  if(drag.mode==='pinch'){if(ptrs.size<2)drag.mode=ptrs.size?'rotate':null;if(drag.mode){const p=[...ptrs.values()][0];drag.last={x:p.x,y:p.y,t:performance.now()}}}
+  else if(!ptrs.size){if(drag.mode==='rotate'&&performance.now()-drag.last.t>90)view.vel=0;if(reduce.matches)view.vel=0;drag.mode=null}
+  if(!ptrs.size){drag.mode=null;cv.classList.remove('grabbing')}requestRender();
+}
+let hoverT=0;function hover(e){const n=performance.now();if(n-hoverT<60)return;hoverT=n;const p=hit(e);cv.classList.toggle('over',!!p&&designAt(p)>=0)}
+cv.addEventListener('pointerdown',onDown);cv.addEventListener('pointermove',onMove);
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,onUp));
+cv.addEventListener('pointerleave',()=>cv.classList.remove('over'));
+cv.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();setZoom(view.distT*(1+e.deltaY*.01))},{passive:false});
+cv.addEventListener('keydown',e=>{const m={ArrowLeft:-.26,ArrowRight:.26}[e.key];if(m){e.preventDefault();view.vel=0;view.rotT+=m;requestRender()}
+  if(e.key==='+'||e.key==='='){setZoom(view.distT*.85)}if(e.key==='-'){setZoom(view.distT*1.18)}});
+
+function setZoom(d){view.distT=clamp(d,DIST.min,DIST.max);requestRender()}
+function setView(name){const a=VIEWS[name];const d=((a-view.rotT)%TAU+TAU*1.5)%TAU-Math.PI;view.rotT+=d;view.vel=0;requestRender()}
+function resetView(){view.vel=0;setView('front');view.tiltT=.16;view.distT=DIST.base;requestRender()}
+$('zIn').addEventListener('click',()=>setZoom(view.distT*.82));
+$('zOut').addEventListener('click',()=>setZoom(view.distT*1.22));
+$('zReset').addEventListener('click',resetView);
+const pills=[...document.querySelectorAll('.ms-top [data-view]')];
+pills.forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+let lastPill='';function syncViewPills(){const a=((view.rot%TAU)+TAU)%TAU;let best='front',bd=9;
+  for(const[k,v]of Object.entries(VIEWS)){const vv=(v+TAU)%TAU;const d=Math.min(Math.abs(a-vv),TAU-Math.abs(a-vv));if(d<bd){bd=d;best=k}}
+  const name=bd<.35?best:'';if(name!==lastPill){lastPill=name;pills.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)))}}
+
+/* ---------- files ---------- */
+const OK=/\.(png|jpe?g|svg)$/i,MAXB=15*1024*1024;
+function readFile(file){
+  return new Promise((res,rej)=>{
+    if(!file)return rej(new Error('No file chosen.'));
+    if(!OK.test(file.name)&&!/^image\/(png|jpeg|svg\+xml)$/.test(file.type))return rej(new Error('Please choose a PNG, JPG or SVG file.'));
+    if(file.size>MAXB)return rej(new Error('That file is over 15 MB. Please choose a smaller file.'));
+    const isSvg=/svg/i.test(file.type)||/\.svg$/i.test(file.name);const rd=new FileReader();
+    rd.onerror=()=>rej(new Error('We could not read that file. Please try again.'));
+    rd.onload=()=>{let src=rd.result;
+      if(isSvg){try{const doc=new DOMParser().parseFromString(rd.result,'image/svg+xml'),svg=doc.documentElement;
+          if(svg.nodeName.toLowerCase()!=='svg')throw 0;
+          const vb=(svg.getAttribute('viewBox')||'').split(/[\s,]+/).map(Number);let w=parseFloat(svg.getAttribute('width')),h=parseFloat(svg.getAttribute('height'));
+          if(!(w>0&&h>0)){w=vb[2]||1000;h=vb[3]||1000}const k=1600/Math.max(w,h);svg.setAttribute('width',Math.round(w*k));svg.setAttribute('height',Math.round(h*k));
+          src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(svg))}
+        catch(e){return rej(new Error('That SVG file could not be opened. Please try a PNG instead.'))}}
+      const im=new Image();im.onload=()=>{
+        const iw=im.naturalWidth||1600,ih=im.naturalHeight||1600,k=Math.min(1,2048/Math.max(iw,ih));
+        const c=document.createElement('canvas');c.width=Math.max(1,Math.round(iw*k));c.height=Math.max(1,Math.round(ih*k));
+        const x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);
+        try{x.getImageData(0,0,1,1)}catch(e){return rej(new Error('This browser blocked that SVG. Please upload a PNG or JPG instead.'))}
+        res(c)};
+      im.onerror=()=>rej(new Error('That file does not look like a picture we can print. Please try another one.'));
+      if(!isSvg)src=rd.result;im.src=src};
+    isSvg?rd.readAsText(file):rd.readAsDataURL(file);
+  });
+}
+function thumbOf(c){const t=document.createElement('canvas'),k=104/Math.max(c.width,c.height);t.width=Math.max(1,Math.round(c.width*k));t.height=Math.max(1,Math.round(c.height*k));
+  t.getContext('2d').drawImage(c,0,0,t.width,t.height);return t.toDataURL('image/png')}
+function setDesign(i,canvas,name,sample){
+  const s=S.sides[i],had=!!s.img;s.img=canvas;s.name=name;s.sample=sample||'';s.thumb=thumbOf(canvas);
+  if(!had){s.cx=.5;s.cy=.5;s.rot=0}s.size=fit(i);errEl.textContent='';
+  select(i,true);paint();ui();
+}
+function upload(i,file){readFile(file).then(c=>setDesign(i,c,file.name)).catch(e=>{errEl.textContent=e.message})}
+function sample(motif,i){
+  const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');
+  (MOTIFS[motif]||MOTIFS.mandala)(x,0,0,1024,1024,{accent:null,seed:9,text:'Kalakriti'});
+  const label=(motif[0].toUpperCase()+motif.slice(1))+' (Kalakriti design)';
+  setDesign(i==null?(S.mode==='both'?S.sel:0):i,c,label,motif);
+}
+function del(i){S.sides[i]=blank();if(S.sel===i)syncAdjust();paint();ui()}
+
+/* ---------- panel ---------- */
+const cards=[...document.querySelectorAll('.sidecard')],sidesEl=$('sides');
+const A={size:$('aSize'),rot:$('aRot'),x:$('aX'),y:$('aY')},O={size:$('oSize'),rot:$('oRot'),x:$('oX'),y:$('oY')};
+function select(i,turn){S.sel=i;if(turn)setView(i===0?'front':'back');paint();ui()}
+function setMode(m){S.mode=m;if(m==='single'&&S.sel===1)S.sel=0;
+  $('modeNote').textContent=m==='single'?'One design, printed on the front of the mug.':'A different design on each side. Side 2 is printed on the back.';
+  if(m==='both'&&S.sides[1].img)setView(S.sel===1?'back':'front');paint();ui()}
+function ui(){
+  $('modeSingle').setAttribute('aria-pressed',String(S.mode==='single'));$('modeBoth').setAttribute('aria-pressed',String(S.mode==='both'));
+  sidesEl.classList.toggle('two',S.mode==='both');cards[1].hidden=S.mode!=='both';
+  cards.forEach((c,i)=>{const s=S.sides[i];c.classList.toggle('sel',i===S.sel);
+    $('thumb'+i).innerHTML=s.thumb?`<img src="${s.thumb}" alt="">`:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    $('fname'+i).textContent=s.name||'No design yet';
+    c.querySelector('[data-upload]').textContent=s.img?'Replace':'Upload design';
+    c.querySelector('[data-del]').disabled=!s.img});
+  $('adjLbl').textContent='Adjust side '+(S.sel+1);syncAdjust();
+}
+function syncAdjust(){const s=S.sides[S.sel],on=!!s.img;$('adjust').setAttribute('aria-disabled',String(!on));
+  [A.size,A.rot,A.x,A.y,$('aCenter'),$('aFit'),$('aRotL'),$('aRotR'),$('aReplace')].forEach(el=>el.disabled=!on);
+  A.size.value=Math.round(s.size*100);A.rot.value=Math.round(s.rot);A.x.value=Math.round(s.cx*100);A.y.value=Math.round(s.cy*100);
+  O.size.textContent=A.size.value+'%';O.rot.textContent=A.rot.value+'°';O.x.textContent=A.x.value;O.y.textContent=A.y.value}
+A.size.addEventListener('input',()=>{S.sides[S.sel].size=A.size.value/100;paint();syncAdjust()});
+A.rot.addEventListener('input',()=>{S.sides[S.sel].rot=+A.rot.value;paint();syncAdjust()});
+A.x.addEventListener('input',()=>{S.sides[S.sel].cx=A.x.value/100;paint();syncAdjust()});
+A.y.addEventListener('input',()=>{S.sides[S.sel].cy=A.y.value/100;paint();syncAdjust()});
+$('aCenter').addEventListener('click',()=>{const s=S.sides[S.sel];s.cx=.5;s.cy=.5;paint();syncAdjust()});
+$('aFit').addEventListener('click',()=>{const s=S.sides[S.sel];s.cx=.5;s.cy=.5;s.rot=0;s.size=fit(S.sel);paint();syncAdjust()});
+const turn=d=>{const s=S.sides[S.sel];s.rot=((s.rot+d+540)%360)-180;paint();syncAdjust()};
+$('aRotL').addEventListener('click',()=>turn(-15));$('aRotR').addEventListener('click',()=>turn(15));
+$('aReplace').addEventListener('click',()=>$('file'+S.sel).click());
+$('modeSingle').addEventListener('click',()=>setMode('single'));
+$('modeBoth').addEventListener('click',()=>setMode('both'));
+cards.forEach((c,i)=>{
+  c.addEventListener('click',e=>{if(e.target.closest('button'))return;select(i,true)});
+  c.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===c){e.preventDefault();select(i,true)}});
+  c.querySelector('[data-upload]').addEventListener('click',()=>$('file'+i).click());
+  c.querySelector('[data-del]').addEventListener('click',()=>del(i));
+  $('file'+i).addEventListener('change',e=>{upload(i,e.target.files[0]);e.target.value=''});
+  c.addEventListener('dragover',e=>{e.preventDefault();c.classList.add('drag')});
+  c.addEventListener('dragleave',()=>c.classList.remove('drag'));
+  c.addEventListener('drop',e=>{e.preventDefault();c.classList.remove('drag');upload(i,e.dataTransfer.files[0])});
+});
+stageEl.addEventListener('dragover',e=>e.preventDefault());
+stageEl.addEventListener('drop',e=>{e.preventDefault();upload(S.mode==='both'?S.sel:0,e.dataTransfer.files[0])});
+document.querySelectorAll('[data-sample]').forEach(b=>b.addEventListener('click',()=>sample(b.dataset.sample)));
+$('optHandle').addEventListener('change',e=>{S.near=e.target.checked;paint()});
+$('optGuides').addEventListener('change',e=>{S.guides=e.target.checked;paint()});
+$('msReset').addEventListener('click',()=>{S.sides=[blank(),blank()];S.sel=0;S.near=false;$('optHandle').checked=false;errEl.textContent='';setMode('single');resetView()});
+$('msOrder').addEventListener('click',()=>{
+  const used=active().filter(i=>S.sides[i].img);const s0=S.sides[0];
+  const fd=document.getElementById('f-design');fd.value=used.length===1&&s0.sample&&S.mode==='single'?s0.sample:'photo';
+  const lines=['Mug: large white ceramic mug','Printing: '+(S.mode==='both'?'both sides':'single side')];
+  active().forEach(i=>lines.push(`Side ${i+1}: `+(S.sides[i].name||'no design yet')));
+  const note=document.getElementById('f-note');note.value=lines.join('\n')+(note.value&&!note.value.startsWith('Mug:')?'\n'+note.value:'');
+});
+
+/* ---------- load Three.js only when the studio comes near ---------- */
+function loadThree(){
+  if(window.THREE){init();return}
+  const urls=['https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js','assets/vendor/three.min.js'];let n=0;
+  (function next(){if(n>=urls.length){fail('The 3D viewer could not load. Please check your connection and refresh the page.');return}
+    const sc=document.createElement('script');sc.src=urls[n++];sc.onload=()=>window.THREE?init():next();sc.onerror=next;document.head.appendChild(sc)})();
+}
+new IntersectionObserver((es,o)=>{if(es.some(e=>e.isIntersecting)){o.disconnect();loadThree()}},{rootMargin:'1200px 0px'}).observe(stageEl);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestRender()});
+ui();
+return{sample,state:S,view};
+})();
+document.querySelectorAll('.card[data-motif]').forEach(a=>a.addEventListener('click',()=>MS.sample(a.dataset.motif)));
 
 /* ================= order form (preview mode: not sent anywhere yet) ================= */
 const form=document.getElementById('orderForm'),thanks=document.getElementById('thanks'),err=document.getElementById('formErr');
@@ -1098,10 +1435,10 @@ form.addEventListener('submit',e=>{e.preventDefault();
 document.getElementById('again').addEventListener('click',()=>{thanks.hidden=true;form.hidden=false;form.reset();document.getElementById('f-name').focus()});
 
 /* ================= boot ================= */
-let resizeT=null;addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{paintCards();paintStudio()},150)});
+let resizeT=null;addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout(paintCards,150)});
 const fontsReady=document.fonts?Promise.all([document.fonts.load('40px Marcellus'),document.fonts.load('40px "Tiro Devanagari Hindi"','चाय पे चर्चा'),document.fonts.ready]).catch(()=>{}):Promise.resolve();
-paintCards();paintStudio();
-fontsReady.then(()=>{paintCards();paintStudio()});
+paintCards();
+fontsReady.then(()=>{paintCards()});
 applyHeroMode();
 drawRibbons();
 if(reduce.matches)pinFinal();
