@@ -18,7 +18,7 @@ export default function Orbit({ items, onOpen }) {
   const st = useRef({ a: 0, paused: false }), geo = useRef({});
   const [W, setW] = useState(640), [hover, setHover] = useState(-1);
   const n = items.length, step = (Math.PI * 2) / n;
-  const S = Math.min(W, 660), mobile = S < 520, c = S / 2;
+  const S = Math.max(160, Math.min(W, 660)), mobile = S < 520, c = S / 2;
   const Ro = c - 2, Ri = Ro * (mobile ? 0.36 : 0.4), rm = (Ro + Ri) / 2 + (mobile ? 2 : 4);
   geo.current = { c, rm };
 
