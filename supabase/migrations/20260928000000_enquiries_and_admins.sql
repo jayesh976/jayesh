@@ -61,4 +61,5 @@ revoke all on public.admin_emails from anon;
 revoke insert, update, delete, truncate, references, trigger on public.admin_emails from authenticated;
 
 insert into public.admin_emails (email) values
-  ('shreemahaganapati72@gmail.com');
+  ('shreemahaganapati72@gmail.com'),
+  ('nigadegitanjali@gmail.com');
