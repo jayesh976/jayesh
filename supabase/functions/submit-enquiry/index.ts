@@ -19,6 +19,10 @@ const LIMITS: Record<string, [number, number, boolean]> = {
 };
 const MAX_PER_WINDOW = 5;
 const WINDOW_MINUTES = 10;
+const MAX_PER_PHONE = 3;
+// Site-wide ceiling: bounds a flood even if an attacker spoofs X-Forwarded-For to dodge the per-IP limit.
+const MAX_SITE_PER_HOUR = 60;
+const MAX_BODY_BYTES = 20_000;
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
@@ -37,7 +41,10 @@ Deno.serve(async (req) => {
 
   let input: Record<string, unknown>;
   try {
-    input = await req.json();
+    const text = await req.text();
+    if (text.length > MAX_BODY_BYTES) return json(413, { error: "Request too large." });
+    input = JSON.parse(text);
+    if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("not an object");
   } catch {
     return json(400, { error: "Invalid request." });
   }
@@ -71,9 +78,21 @@ Deno.serve(async (req) => {
     .select("id", { count: "exact", head: true })
     .eq("ip_hash", ipHash)
     .gte("created_at", since);
-  if ((count ?? 0) >= MAX_PER_WINDOW) {
-    return json(429, { error: "Too many requests. Please wait a few minutes or call us directly." });
-  }
+  const tooMany = () => json(429, { error: "Too many requests. Please wait a few minutes or call us directly." });
+  if ((count ?? 0) >= MAX_PER_WINDOW) return tooMany();
+
+  const { count: phoneCount } = await supabase
+    .from("enquiries")
+    .select("id", { count: "exact", head: true })
+    .eq("phone", row.phone!)
+    .gte("created_at", since);
+  if ((phoneCount ?? 0) >= MAX_PER_PHONE) return tooMany();
+
+  const { count: siteCount } = await supabase
+    .from("enquiries")
+    .select("id", { count: "exact", head: true })
+    .gte("created_at", new Date(Date.now() - 3_600_000).toISOString());
+  if ((siteCount ?? 0) >= MAX_SITE_PER_HOUR) return tooMany();
 
   const { data, error } = await supabase.from("enquiries").insert({ ...row, ip_hash: ipHash }).select("id, created_at").single();
   if (error) {
