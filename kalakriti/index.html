@@ -182,6 +182,11 @@ section{position:relative}
 .live .ph .glow{animation:breathe 7s ease-in-out -2s infinite}
 @keyframes breathe{50%{opacity:1}}
 .meaning .ph{aspect-ratio:6/5}
+.ph.drawn{display:grid;place-items:center}
+.ph .ill{width:100%;height:100%;display:block}
+.live .ill .flicker{animation:flicker 3.4s ease-in-out -1.7s infinite;transform-origin:160px 168px}
+.live .ill .sway{animation:sway 9s ease-in-out -3s infinite;transform-origin:160px 196px}
+@keyframes sway{50%{transform:rotate(1.6deg)}}
 .meaning .ph img{object-position:57% 50%}
 
 /* Lotus divider (self-drawing) */
@@ -240,11 +245,10 @@ section{position:relative}
 .burn.done .leaf{transform:scale(1)}
 
 /* Collection */
-.collection .banner{margin-top:48px;aspect-ratio:21/8}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:22px;list-style:none;padding:0}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px;list-style:none;padding:0}
 .card{background:var(--panel);border-radius:20px;padding:22px 20px 22px;display:flex;flex-direction:column;border:1px solid rgba(168,139,110,.28);transition:transform .45s var(--ease-out),box-shadow .45s var(--ease-out)}
 .card:hover{transform:translateY(-4px);box-shadow:0 24px 50px -28px rgba(34,20,12,.5)}
-.card svg{width:96px;height:120px;margin:4px auto 10px;display:block;overflow:visible}
+.card svg{width:128px;height:160px;margin:-6px auto 4px;display:block;overflow:visible}
 .card .sheen{opacity:0}
 .live .card .sheen{animation:sheen 9s ease-in-out infinite}
 .cards li:nth-child(1) .sheen{animation-delay:-1s}
@@ -344,7 +348,6 @@ footer .fine{width:100%;display:flex;flex-wrap:wrap;justify-content:space-betwee
   .lives .ph{aspect-ratio:16/11}
   .meaning .ph{aspect-ratio:16/12}
   .faq .sec-head{position:static}
-  .collection .banner{aspect-ratio:16/9}
   .cta-jar{width:180px}
 }
 @media (max-width:520px){
@@ -441,7 +444,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
 </section>
 
-<section class="lives pad" aria-labelledby="lives-h" data-reveal>
+<section class="lives pad" aria-labelledby="lives-h" data-reveal data-live>
   <div class="wrap">
     <div class="sec-head">
       <p class="kicker r">Three lives of one jar</p>
@@ -449,17 +452,36 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     </div>
     <ol class="steps">
       <li class="r" style="--i:2">
-        <figure class="ph"><img src="assets/life-candle.jpg" alt="The Kalakriti jar lit, with a calm flame and an even melt pool" loading="lazy" decoding="async" width="1920" height="1080" onerror="this.remove()"></figure>
+        <figure class="ph drawn"><!-- PHOTO SLOT: swap for the real product photo when it arrives --><svg class="ill" viewBox="0 0 320 400" role="img" aria-label="Illustration: the Kalakriti pot lit as a candle">
+          <ellipse cx="160" cy="250" rx="140" ry="150" fill="url(#ill-glow)"/><ellipse cx="160" cy="356" rx="84" ry="9" fill="#000" opacity=".35"/>
+          <use href="#pot-sym" x="70" y="150" width="180" height="225" style="color:#4A2A1A"/>
+          <ellipse cx="160" cy="150" rx="80" ry="90" fill="url(#ill-flame)"/>
+          <g class="flicker"><path d="M160 116c12 18 16 32 10 52a10 10 0 0 1-20 0c-6-20-2-34 10-52Z" fill="#FFD27A"/><path d="M160 148c4 7 5 14 3 20a3.6 3.6 0 0 1-6 0c-2-6-1-13 3-20Z" fill="#FFF6D8"/></g>
+        </svg></figure>
         <div class="num"><span>01</span><h3>First, a candle.</h3></div>
         <p>About 40 hours of slow, even light and a scent that fills the room.</p>
       </li>
       <li class="r" style="--i:3">
-        <figure class="ph"><img src="assets/life-planter.jpg" alt="The empty jar used as a planter with a small money plant on a windowsill" loading="lazy" decoding="async" width="1920" height="1080" onerror="this.remove()"></figure>
+        <figure class="ph drawn"><!-- PHOTO SLOT: swap for the real product photo when it arrives --><svg class="ill" viewBox="0 0 320 400" role="img" aria-label="Illustration: the empty Kalakriti pot used as a planter with a money plant">
+          <ellipse cx="160" cy="250" rx="140" ry="150" fill="url(#ill-glow)"/><ellipse cx="160" cy="356" rx="84" ry="9" fill="#000" opacity=".35"/>
+          <use href="#pot-body" x="70" y="150" width="180" height="225" style="color:#4A2A1A"/>
+          <ellipse cx="160" cy="197" rx="60" ry="5" fill="#2A170D"/>
+          <g fill="none" stroke="#2F8A7E" stroke-width="2.6" stroke-linecap="round"><path d="M158 196C150 172 130 150 116 128"/><path d="M162 196C170 170 186 150 201 136"/><path d="M172 196C204 192 232 202 242 230C248 250 246 268 240 284"/></g>
+          <g class="sway"><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#2F8A7E" transform="translate(140 170) rotate(-40)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#1F6F66" transform="translate(124 142) rotate(-20)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#3FA08F" transform="translate(116 128) rotate(-60)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#1F6F66" transform="translate(178 168) rotate(35)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#3FA08F" transform="translate(194 148) rotate(20)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#2F8A7E" transform="translate(201 136) rotate(50)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#2F8A7E" transform="translate(243 226) rotate(150)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#1F6F66" transform="translate(248 256) rotate(200)"/><path d="M0 0C-9-6-11-19 0-27C11-19 9-6 0 0Z" fill="#3FA08F" transform="translate(240 284) rotate(160)"/></g>
+        </svg></figure>
         <div class="num"><span>02</span><h3>Then, a planter.</h3></div>
         <p>Wash out the last of the wax, add soil and a little money plant.</p>
       </li>
       <li class="r" style="--i:4">
-        <figure class="ph"><img src="assets/life-brushes.jpg" alt="The jar holding makeup brushes and marigolds beside a brass diya" loading="lazy" decoding="async" width="1920" height="1080" onerror="this.remove()"></figure>
+        <figure class="ph drawn"><!-- PHOTO SLOT: swap for the real product photo when it arrives --><svg class="ill" viewBox="0 0 320 400" role="img" aria-label="Illustration: the Kalakriti pot holding makeup brushes and marigolds beside a brass diya">
+          <ellipse cx="160" cy="250" rx="140" ry="150" fill="url(#ill-glow)"/><ellipse cx="160" cy="356" rx="84" ry="9" fill="#000" opacity=".35"/>
+          <g transform="translate(160 214) rotate(-17)"><rect x="-4" y="-150" width="8" height="150" rx="4" fill="#9A6A3C"/><rect x="-5.5" y="-170" width="11" height="22" rx="2" fill="#C9973A"/><path d="M-6-170C-9-188-4-204 0-212C4-204 9-188 6-170Z" fill="#E8C9A8"/></g><g transform="translate(160 214) rotate(2)"><rect x="-4" y="-150" width="8" height="150" rx="4" fill="#9A6A3C"/><rect x="-5.5" y="-170" width="11" height="22" rx="2" fill="#C9973A"/><path d="M-6-170C-9-188-4-204 0-212C4-204 9-188 6-170Z" fill="#E7B3C4"/></g><g transform="translate(160 214) rotate(18)"><rect x="-4" y="-150" width="8" height="150" rx="4" fill="#9A6A3C"/><rect x="-5.5" y="-170" width="11" height="22" rx="2" fill="#C9973A"/><path d="M-6-170C-9-188-4-204 0-212C4-204 9-188 6-170Z" fill="#3B2416"/></g>
+          <use href="#pot-body" x="70" y="150" width="180" height="225" style="color:#4A2A1A"/>
+          <g transform="translate(126 190)"><circle r="15" fill="#E07A12"/><circle r="15" fill="none" stroke="#F6A93B" stroke-width="5.2" stroke-dasharray="3 2.2"/><circle r="8.2" fill="#F6A93B"/><circle r="3.3" fill="#B35F0E"/></g><g transform="translate(196 188)"><circle r="13" fill="#E07A12"/><circle r="13" fill="none" stroke="#F6A93B" stroke-width="4.5" stroke-dasharray="3 2.2"/><circle r="7.2" fill="#F6A93B"/><circle r="2.9" fill="#B35F0E"/></g>
+          <ellipse cx="262" cy="357" rx="30" ry="4" fill="#000" opacity=".3"/>
+          <path d="M236 340C240 356 284 356 288 340Z" fill="#C9973A"/><path d="M236 340H288" stroke="#E2B860" stroke-width="2"/>
+          <g class="flicker" style="transform-origin:262px 338px"><path d="M262 318c5 7 7 13 4 20a4 4 0 0 1-8 0c-3-7-1-13 4-20Z" fill="#FFD27A"/></g>
+        </svg></figure>
         <div class="num"><span>03</span><h3>Then, whatever you love.</h3></div>
         <p>Brushes, pens, a diya, a few marigolds. It was always made to stay.</p>
       </li>
@@ -482,7 +504,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     </div>
     <svg class="jar-art r" style="--i:2" viewBox="0 0 240 300" aria-hidden="true">
       <defs>
-        <clipPath id="jar-in"><path d="M72 74C40 96 30 140 34 176C38 226 64 262 92 272H148C176 262 202 226 206 176C210 140 200 96 168 74Z"/></clipPath>
+        <clipPath id="jar-in"><path d="M44 74C24 100 18 140 20 176C24 224 52 260 80 272H160C188 260 216 224 220 176C222 140 216 100 196 74Z"/></clipPath>
         <linearGradient id="wax-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3D9A4"/><stop offset="1" stop-color="#D9A75A"/></linearGradient>
         <radialGradient id="flame-g" cx=".5" cy=".7" r=".6"><stop offset="0" stop-color="#FFF6D8"/><stop offset=".5" stop-color="#FFC861"/><stop offset="1" stop-color="#F08A2C" stop-opacity="0"/></radialGradient>
       </defs>
@@ -495,10 +517,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <path class="leaf l1" d="M120 196c-20-2-30-12-32-24 14 0 26 8 32 24Z" fill="#1F6F66"/>
       <path class="leaf l2" d="M120 178c18-4 26-14 26-26-13 2-23 10-26 26Z" fill="#2F8A7E"/>
       <path class="leaf l3" d="M120 162c-12-6-16-16-14-26 10 4 15 13 14 26Z" fill="#1F6F66"/>
-      <path d="M72 74C40 96 30 140 34 176C38 226 64 262 92 272H148C176 262 202 226 206 176C210 140 200 96 168 74Z" fill="none" stroke="#C9973A" stroke-width="3"/>
-      <rect x="62" y="60" width="116" height="16" rx="6" fill="#C9973A"/>
-      <rect x="62" y="60" width="116" height="5" rx="2.5" fill="#E2B860"/>
-      <g fill="none" stroke="#E2B860" stroke-width="1.6"><path d="M44 110Q120 124 196 110M37 142Q120 158 203 142"/><path d="M80 141c-5-4-5-11 0-17 5 6 5 13 0 17ZM120 145c-5-4-5-11 0-17 5 6 5 13 0 17ZM160 141c-5-4-5-11 0-17 5 6 5 13 0 17Z"/></g>
+      <path d="M44 74C24 100 18 140 20 176C24 224 52 260 80 272H160C188 260 216 224 220 176C222 140 216 100 196 74Z" fill="none" stroke="#C9973A" stroke-width="3"/>
+      <rect x="32" y="60" width="176" height="16" rx="6" fill="#C9973A"/>
+      <rect x="32" y="60" width="176" height="5" rx="2.5" fill="#E2B860"/>
+      <g fill="none" stroke="#E2B860" stroke-width="1.6"><path d="M30 94Q120 108 210 94M23 128Q120 144 217 128"/><path d="M58 126c-5-4-5-11 0-17 5 6 5 13 0 17ZM89 130c-5-4-5-11 0-17 5 6 5 13 0 17ZM120 131c-5-4-5-11 0-17 5 6 5 13 0 17ZM151 130c-5-4-5-11 0-17 5 6 5 13 0 17ZM182 126c-5-4-5-11 0-17 5 6 5 13 0 17Z"/></g>
       <g class="flame-g">
         <line class="wick" x1="120" y1="96" x2="120" y2="82" stroke="#3B2416" stroke-width="2.6" stroke-linecap="round"/>
         <g class="flame"><ellipse cx="120" cy="58" rx="40" ry="50" fill="url(#flame-g)" opacity=".6"/><path class="flame-inner" d="M120 30c12 16 15 30 9 46a10 10 0 0 1-18 0c-6-16-3-30 9-46Z" fill="#FFD27A"/><path d="M120 56c4 6 5 12 3 17a3.4 3.4 0 0 1-6 0c-2-5-1-11 3-17Z" fill="#FFF6D8"/></g>
@@ -514,45 +536,46 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <p class="kicker r">The collection</p>
       <h2 class="r" id="col-h" style="--i:1">Four scents. One jar worth keeping.</h2>
     </div>
-    <figure class="ph banner r" style="--i:2"><img src="assets/collection.jpg" alt="Four Kalakriti jars in a row in cocoa, ivory, lotus pink and teal glazes" loading="lazy" decoding="async" width="1920" height="1080" onerror="this.remove()"></figure>
+    
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
       <defs>
+        <radialGradient id="ill-flame" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE7A8" stop-opacity=".55"/><stop offset=".45" stop-color="#FFC861" stop-opacity=".18"/><stop offset="1" stop-color="#FFC861" stop-opacity="0"/></radialGradient>
+        <radialGradient id="ill-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E2B860" stop-opacity=".28"/><stop offset="1" stop-color="#E2B860" stop-opacity="0"/></radialGradient>
         <linearGradient id="shade" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity=".18"/></linearGradient>
-        <symbol id="pot-sym" viewBox="0 0 120 150">
-          <path d="M36 37C20 48 15 70 17 88C19 113 32 131 46 136H74C88 131 101 113 103 88C105 70 100 48 84 37Z" fill="currentColor"/>
-          <path d="M36 37C20 48 15 70 17 88C19 113 32 131 46 136H74C88 131 101 113 103 88C105 70 100 48 84 37Z" fill="url(#shade)"/>
-          <ellipse cx="60" cy="31" rx="26" ry="3" fill="#E9B65E"/>
-          <line x1="60" y1="31" x2="60" y2="20" stroke="#F3E6CF" stroke-width="2" stroke-linecap="round"/>
-          <rect x="31" y="30" width="58" height="8" rx="3" fill="#C9973A"/>
-          <rect x="31" y="30" width="58" height="2.5" rx="1.25" fill="#E2B860"/>
-          <g fill="none" stroke="#E2B860" stroke-width="1.2"><path d="M22 55Q60 62 98 55M18.5 71Q60 79 101.5 71"/><path d="M40 70c-3-2-3-6 0-9 3 3 3 7 0 9ZM60 72c-3-2-3-6 0-9 3 3 3 7 0 9ZM80 70c-3-2-3-6 0-9 3 3 3 7 0 9Z"/></g>
+        <symbol id="pot-body" viewBox="0 0 120 150">
+          <path d="M22 37C12 50 9 70 10 88C12 112 26 130 40 136H80C94 130 108 112 110 88C111 70 108 50 98 37Z" fill="currentColor"/>
+          <path d="M22 37C12 50 9 70 10 88C12 112 26 130 40 136H80C94 130 108 112 110 88C111 70 108 50 98 37Z" fill="url(#shade)"/>
+          <rect x="16" y="30" width="88" height="8" rx="3" fill="#C9973A"/>
+          <rect x="16" y="30" width="88" height="2.5" rx="1.25" fill="#E2B860"/>
+          <g fill="none" stroke="#E2B860" stroke-width="1.2"><path d="M15 47Q60 54 105 47M11.5 64Q60 72 108.5 64"/><path d="M27 63c-3-2-3-6 0-9 3 3 3 7 0 9ZM43.5 65c-3-2-3-6 0-9 3 3 3 7 0 9ZM60 66c-3-2-3-6 0-9 3 3 3 7 0 9ZM76.5 65c-3-2-3-6 0-9 3 3 3 7 0 9ZM93 63c-3-2-3-6 0-9 3 3 3 7 0 9Z"/></g>
         </symbol>
+        <symbol id="pot-sym" viewBox="0 0 120 150"><use href="#pot-body"/><line x1="60" y1="31" x2="60" y2="20" stroke="#F3E6CF" stroke-width="2" stroke-linecap="round"/></symbol>
       </defs>
     </svg>
     <ul class="cards">
       <li class="card r" style="--i:3">
-        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#4A2A1A"/><ellipse class="sheen" cx="34" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
+        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#4A2A1A"/><ellipse class="sheen" cx="26" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
         <h3>Mogra Raat</h3>
         <p class="notes">Jasmine and night air</p>
         <div class="meta"><span>200 G · COCOA</span><b>₹899</b></div>
         <a class="btn btn-primary wa" data-scent="Mogra Raat" href="https://wa.me/?text=Hi%20Kalakriti%2C%20I%20would%20like%20to%20order%20Mogra%20Raat." target="_blank" rel="noopener">Order on WhatsApp</a>
       </li>
       <li class="card r" style="--i:4">
-        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#E9DCC6"/><ellipse class="sheen" cx="34" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
+        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#E9DCC6"/><ellipse class="sheen" cx="26" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
         <h3>Chandan Haveli</h3>
         <p class="notes">Sandalwood and old wood</p>
         <div class="meta"><span>200 G · IVORY</span><b>₹949</b></div>
         <a class="btn btn-primary wa" data-scent="Chandan Haveli" href="https://wa.me/?text=Hi%20Kalakriti%2C%20I%20would%20like%20to%20order%20Chandan%20Haveli." target="_blank" rel="noopener">Order on WhatsApp</a>
       </li>
       <li class="card r" style="--i:5">
-        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#D98AA6"/><ellipse class="sheen" cx="34" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
+        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#D98AA6"/><ellipse class="sheen" cx="26" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
         <h3>Kesar Chai</h3>
         <p class="notes">Saffron, cardamom, warm milk</p>
         <div class="meta"><span>200 G · LOTUS</span><b>₹849</b></div>
         <a class="btn btn-primary wa" data-scent="Kesar Chai" href="https://wa.me/?text=Hi%20Kalakriti%2C%20I%20would%20like%20to%20order%20Kesar%20Chai." target="_blank" rel="noopener">Order on WhatsApp</a>
       </li>
       <li class="card r" style="--i:6">
-        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#1F6F66"/><ellipse class="sheen" cx="34" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
+        <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#pot-sym" style="color:#1F6F66"/><ellipse class="sheen" cx="26" cy="92" rx="4" ry="26" fill="#fff" opacity="0"/></svg>
         <h3>Pehli Baarish</h3>
         <p class="notes">First rain on dry earth</p>
         <div class="meta"><span>200 G · TEAL</span><b>₹899</b></div>
@@ -565,7 +588,19 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 <section class="gifts pad" id="gifts" aria-labelledby="gift-h" data-reveal data-live>
   <div class="wrap grid">
-    <figure class="ph r"><img src="assets/gift.jpg" alt="An open cocoa keepsake gift box with two Kalakriti jars, a gold ribbon and a blank card" loading="lazy" decoding="async" width="1920" height="1080" onerror="this.remove()"><span class="glow"></span></figure>
+    <figure class="ph r drawn"><!-- PHOTO SLOT: swap for the real product photo when it arrives --><svg class="ill" viewBox="0 0 500 400" role="img" aria-label="Illustration: an open cocoa keepsake gift box holding two Kalakriti pots with a gold ribbon and a blank card">
+        <ellipse cx="250" cy="250" rx="230" ry="170" fill="url(#ill-glow)"/>
+        <ellipse cx="250" cy="346" rx="170" ry="11" fill="#000" opacity=".35"/>
+        <g transform="rotate(-9 110 330)"><rect x="66" y="120" width="64" height="214" rx="5" fill="#4A2A1A"/><rect x="66" y="120" width="64" height="214" rx="5" fill="none" stroke="#C9973A" stroke-width="2"/></g>
+        <rect x="118" y="150" width="264" height="96" rx="4" fill="#B8862F"/><rect x="118" y="150" width="264" height="10" fill="#E2B860"/>
+        <use href="#pot-sym" x="146" y="114" width="110" height="137" style="color:#4A2A1A"/>
+        <use href="#pot-sym" x="244" y="114" width="110" height="137" style="color:#D98AA6"/>
+        <rect x="110" y="236" width="280" height="106" rx="6" fill="#3A2215"/><rect x="110" y="236" width="280" height="106" rx="6" fill="none" stroke="#C9973A" stroke-width="2"/>
+        <rect x="110" y="276" width="280" height="12" fill="#E2B860"/>
+        <g fill="none" stroke="#E2B860" stroke-width="7" stroke-linecap="round"><path d="M250 282C226 256 204 266 216 282C226 292 240 288 250 282Z"/><path d="M250 282C274 256 296 266 284 282C274 292 260 288 250 282Z"/><path d="M248 286L236 316M252 286L266 318"/></g>
+        <g transform="rotate(8 366 318)"><rect x="336" y="296" width="72" height="46" rx="3" fill="#F3E6CF"/><rect x="336" y="296" width="72" height="46" rx="3" fill="none" stroke="#C9973A" stroke-width="1.2"/></g>
+        <g fill="#E07A12"><ellipse cx="96" cy="350" rx="7" ry="3.5" transform="rotate(20 96 350)"/><ellipse cx="420" cy="352" rx="6" ry="3" transform="rotate(-30 420 352)"/><ellipse cx="438" cy="344" rx="5" ry="2.6"/></g>
+      </svg></figure>
     <div>
       <p class="kicker r" style="--i:1">Gift sets</p>
       <h2 class="r" id="gift-h" style="--i:2;font-size:clamp(2.2rem,4.2vw,3.6rem);margin-top:14px;max-width:15ch">A gift they will still have next Diwali.</h2>
@@ -631,12 +666,12 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <small class="r" style="--i:3">Replies usually within a few hours.</small>
     </div>
     <svg class="cta-jar" viewBox="0 0 240 300" aria-hidden="true">
-      <defs><clipPath id="cta-in"><path d="M72 74C40 96 30 140 34 176C38 226 64 262 92 272H148C176 262 202 226 206 176C210 140 200 96 168 74Z"/></clipPath></defs>
+      <defs><clipPath id="cta-in"><path d="M44 74C24 100 18 140 20 176C24 224 52 260 80 272H160C188 260 216 224 220 176C222 140 216 100 196 74Z"/></clipPath></defs>
       <g clip-path="url(#cta-in)"><rect x="20" y="60" width="200" height="220" fill="rgba(74,46,30,.6)"/><rect class="fill" x="20" y="92" width="200" height="190" fill="url(#wax-g)"/></g>
-      <path d="M72 74C40 96 30 140 34 176C38 226 64 262 92 272H148C176 262 202 226 206 176C210 140 200 96 168 74Z" fill="none" stroke="#C9973A" stroke-width="3"/>
-      <rect x="62" y="60" width="116" height="16" rx="6" fill="#C9973A"/>
-      <rect x="62" y="60" width="116" height="5" rx="2.5" fill="#E2B860"/>
-      <g fill="none" stroke="#E2B860" stroke-width="1.6"><path d="M44 110Q120 124 196 110M37 142Q120 158 203 142"/><path d="M80 141c-5-4-5-11 0-17 5 6 5 13 0 17ZM120 145c-5-4-5-11 0-17 5 6 5 13 0 17ZM160 141c-5-4-5-11 0-17 5 6 5 13 0 17Z"/></g>
+      <path d="M44 74C24 100 18 140 20 176C24 224 52 260 80 272H160C188 260 216 224 220 176C222 140 216 100 196 74Z" fill="none" stroke="#C9973A" stroke-width="3"/>
+      <rect x="32" y="60" width="176" height="16" rx="6" fill="#C9973A"/>
+      <rect x="32" y="60" width="176" height="5" rx="2.5" fill="#E2B860"/>
+      <g fill="none" stroke="#E2B860" stroke-width="1.6"><path d="M30 94Q120 108 210 94M23 128Q120 144 217 128"/><path d="M58 126c-5-4-5-11 0-17 5 6 5 13 0 17ZM89 130c-5-4-5-11 0-17 5 6 5 13 0 17ZM120 131c-5-4-5-11 0-17 5 6 5 13 0 17ZM151 130c-5-4-5-11 0-17 5 6 5 13 0 17ZM182 126c-5-4-5-11 0-17 5 6 5 13 0 17Z"/></g>
     </svg>
   </div>
 </section>

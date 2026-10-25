@@ -155,6 +155,10 @@ All in the hero's world: same cocoa jar, same warm dusk light, same ivory plaste
 
 Life 01 (the lit candle) uses a still too if the ending frame does not carry it: budget allows one extra.
 
+### Until real photos arrive
+
+The owner will send real product photos later. Until then the four still slots (lit candle, planter, brush holder, gift box) carry hand-drawn SVG illustrations of the pot from the hero video, and the collection banner is left out so the drawn pots in the cards carry that section. Each slot is marked `PHOTO SLOT` in index.html.
+
 ## 11. Cost (to be preflighted exactly before spending)
 
 - Start frame: about 2 credits.
