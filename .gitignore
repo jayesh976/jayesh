@@ -5,3 +5,7 @@ dist/
 *.log
 .DS_Store
 preview-dist/
+
+# Kalakriti working files (raw generations and inspection frames stay out of the repo)
+kalakriti-review/raw/
+kalakriti-review/frames/
