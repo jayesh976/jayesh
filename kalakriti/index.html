@@ -844,6 +844,7 @@ async function loadHeroBlob() {
   }
   clearTimeout(watchdog);
   ring.style.setProperty('--ld', 0);
+  video.preload = 'auto';   // Safari will not load a preload=none video until it plays
   video.src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
   video.load();
   armReady();
@@ -853,7 +854,8 @@ async function loadHeroBlob() {
 let triedDirect = false, readyTimer = null;
 function armReady() {
   clearTimeout(readyTimer);
-  readyTimer = setTimeout(() => { if (!stage.classList.contains('video-ready')) onVideoTrouble(); }, 12000);
+  readyTimer = setTimeout(() => { if (!stage.classList.contains('video-ready')) onVideoTrouble(); }, 8000);
+  video.addEventListener('loadedmetadata', primeVideo, { once: true });
   video.addEventListener('canplay', () => {
     clearTimeout(readyTimer);
     requestSeek(heroProgress() * video.duration * 0.999);
@@ -869,6 +871,12 @@ function onVideoTrouble() {
   video.src = VIDEO_URL;
   video.load();
   armReady();
+}
+// A muted play and instant pause makes Safari decode and paint frames for later seeks
+function primeVideo() {
+  video.muted = true;
+  const pr = video.play();
+  if (pr && pr.then) pr.then(() => { video.pause(); seekBusy = false; requestSeek(heroProgress() * video.duration * 0.999); }).catch(() => {});
 }
 function failVideo() { clearTimeout(readyTimer); stage.classList.add('video-failed'); }
 
