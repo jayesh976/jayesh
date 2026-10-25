@@ -78,13 +78,17 @@ p{margin:0}
 .nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:50;width:min(1160px,calc(100vw - 24px));display:flex;align-items:center;gap:20px;padding:8px 8px 8px 14px;border-radius:999px;background:rgba(246,239,228,.86);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border:1px solid rgba(168,139,110,.35);box-shadow:0 8px 30px rgba(34,20,12,.12)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-primary)}
 .brand img{width:44px;height:auto}
-.brand span{font:400 1.45rem/1 var(--display);padding-top:4px}
+.brand-txt{display:flex;flex-direction:column;gap:5px;padding-top:3px}
+.brand-txt b{font:400 1.4rem/1 var(--display)}
+.brand-txt small{display:flex;align-items:center;gap:6px;font:600 .66rem/1 var(--body);letter-spacing:.03em;color:var(--text-secondary);white-space:nowrap}
+.brand-txt small::before,.brand-txt small::after{content:"";width:12px;height:1px;background:var(--gold)}
 .nav ul{display:flex;gap:6px;list-style:none;margin:0 0 0 auto;padding:0}
 .nav ul a{display:block;padding:10px 12px;border-radius:999px;text-decoration:none;font-weight:600;font-size:.95rem;color:var(--text-secondary);transition:color .3s var(--ease-out),background-color .3s var(--ease-out)}
 .nav ul a:hover{color:var(--text-primary);background:rgba(184,134,47,.12)}
 .nav .btn{padding:.8em 1.2em;font-size:.95rem}
 @media (max-width:900px){.nav ul{display:none}.nav .btn{margin-left:auto}}
-@media (max-width:420px){.nav .btn .long{display:none}}
+@media (max-width:420px){.nav .btn .long{display:none}.nav{gap:10px}.brand{gap:8px}.brand img{width:36px}.brand-txt b{font-size:1.2rem}.brand-txt small{font-size:.6rem}.brand-txt small::before,.brand-txt small::after{display:none}}
+@media (max-width:360px){.nav .btn > span{display:none}.nav .btn{padding:.8em}}
 
 /* ---------------- HERO ---------------- */
 .hero{position:relative;height:480vh;background:var(--night)}
@@ -373,14 +377,14 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <div class="env" aria-hidden="true"></div>
 
 <nav class="nav" aria-label="Main">
-  <a class="brand" href="#top" aria-label="Kalakriti home"><img src="assets/logo-mark.png" width="96" height="80" alt=""><span>Kalakriti</span></a>
+  <a class="brand" href="#top" aria-label="Kalakriti, where tradition meets trends. Home"><img src="assets/logo-mark.png" width="96" height="80" alt=""><span class="brand-txt"><b>Kalakriti</b><small>Where tradition meets trends</small></span></a>
   <ul>
     <li><a href="#collection">Collection</a></li>
     <li><a href="#gifts">Gift sets</a></li>
     <li><a href="#jar">The jar</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <a class="btn btn-primary wa" href="https://wa.me/?text=Hi%20Kalakriti%2C%20I%20would%20like%20to%20order%20a%20candle." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.2-.2-.4-.3Z"/></svg><span>Order<span class="long"> on WhatsApp</span></span></a>
+  <a class="btn btn-primary wa" aria-label="Order on WhatsApp" href="https://wa.me/?text=Hi%20Kalakriti%2C%20I%20would%20like%20to%20order%20a%20candle." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.2-.2-.4-.3Z"/></svg><span>Order<span class="long"> on WhatsApp</span></span></a>
 </nav>
 
 <main id="main" tabindex="-1">
@@ -788,7 +792,7 @@ video.addEventListener('seeked', () => {
   seekBusy = false;
   if (pendingTime !== null) { const t = pendingTime; pendingTime = null; requestSeek(t); }
 });
-video.addEventListener('error', () => { seekBusy = false; pendingTime = null; if (video.getAttribute('src')) failVideo(); });
+video.addEventListener('error', () => { seekBusy = false; pendingTime = null; if (video.getAttribute('src')) onVideoTrouble(); });
 
 // Lerp loop that rests
 let target = 0, shown = 0, rafId = null, lastTick = 0, heroOnScreen = true;
@@ -817,7 +821,7 @@ function initHeroOnce() {
   if (heroInit) return; heroInit = true;
   posterLayer.style.backgroundImage = `url('${POSTER_URL}')`;
   let started = false;
-  const start = () => { if (started) return; started = true; loadHeroBlob().catch(failVideo); };
+  const start = () => { if (started) return; started = true; loadHeroBlob().catch(onVideoTrouble); };
   const img = new Image();
   img.onload = start; img.onerror = start; img.src = POSTER_URL;
   setTimeout(start, 4000);
@@ -842,12 +846,31 @@ async function loadHeroBlob() {
   ring.style.setProperty('--ld', 0);
   video.src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
   video.load();
+  armReady();
+}
+// Some hosts and embedded frames refuse to play a blob: video. Then play the file itself
+// (seeking needs the host's Range support there), and only after that fails fall back to the stills.
+let triedDirect = false, readyTimer = null;
+function armReady() {
+  clearTimeout(readyTimer);
+  readyTimer = setTimeout(() => { if (!stage.classList.contains('video-ready')) onVideoTrouble(); }, 12000);
   video.addEventListener('canplay', () => {
+    clearTimeout(readyTimer);
     requestSeek(heroProgress() * video.duration * 0.999);
     stage.classList.add('video-ready');
   }, { once: true });
 }
-function failVideo() { stage.classList.add('video-failed'); }
+function onVideoTrouble() {
+  if (stage.classList.contains('video-ready')) return;
+  if (triedDirect) return failVideo();
+  triedDirect = true;
+  seekBusy = false; pendingTime = null;
+  video.preload = 'auto';
+  video.src = VIDEO_URL;
+  video.load();
+  armReady();
+}
+function failVideo() { clearTimeout(readyTimer); stage.classList.add('video-failed'); }
 
 // The five static-hero gates, kept live
 const GATES = [
