@@ -1,0 +1,44 @@
+name: Keep Supabase awake
+
+# The free Supabase plan pauses a project after about a week without activity, and a paused project
+# stops the website's enquiry form from saving. This calls a tiny database function once a day
+# (supabase/migrations/20261026000000_keepalive.sql) so the project stays awake.
+on:
+  schedule:
+    - cron: '23 2 * * *' # every day at 02:23 UTC (07:53 IST)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write # lets the last step keep this schedule switched on
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .env
+          sparse-checkout-cone-mode: false
+
+      - name: Call the keepalive function
+        run: |
+          set -a; . ./.env; set +a
+          for attempt in 1 2 3; do
+            status=$(curl -sS -o reply.txt -w '%{http_code}' -X POST "$VITE_SUPABASE_URL/rest/v1/rpc/keepalive" \
+              -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY" \
+              -H "Content-Type: application/json" -d '{}') || status=000
+            echo "Attempt $attempt: HTTP $status $(cat reply.txt 2>/dev/null)"
+            [ "$status" = 200 ] && exit 0
+            sleep 20
+          done
+          echo "::error::Supabase did not answer. If the project is paused, restore it from the Supabase dashboard."
+          exit 1
+
+      - name: Keep this schedule switched on
+        # GitHub switches off scheduled workflows in public repositories after 60 days without commits;
+        # re-enabling the workflow through the API resets that clock.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/supabase-keepalive.yml/enable"

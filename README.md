@@ -55,6 +55,10 @@ delete from public.admin_emails where email = 'someone@example.com';
 
 Emails must be lowercase.
 
+## Keeping the backend awake
+
+The free Supabase plan pauses a project after about a week without activity, and a paused project cannot save enquiries. `.github/workflows/supabase-keepalive.yml` calls the small `public.keepalive()` database function every day so this does not happen. If a run fails, GitHub emails the repository owner; restore the project from the Supabase dashboard if it was paused anyway.
+
 ## Backend source
 
 - `supabase/migrations/` — database tables, security rules and realtime setup (already applied to project `gvivdgryatugomqoolpm`).
